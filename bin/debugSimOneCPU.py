@@ -99,7 +99,7 @@ def parseCliOptions():
         dest       = 'pkPeriod',
         nargs      = '+',
         type       = float,
-#        default    = [16, 8, 4, 2, 1, 0.5],
+        default    = None,
         help       = '[app] Average period between two data packets (s).',
     )
     parser.add_argument( '--pkPeriodVar',
@@ -112,16 +112,16 @@ def parseCliOptions():
         dest       = 'burstTimestamp',
         nargs      = '+',
         type       = float,
-        # default    = 20,
-        default    = None,
+        default    = 20,
+        # default    = None,
         help       = '[app] Timestamp when the burst happens (s).',
     )
     parser.add_argument( '--numPacketsBurst',
         dest       = 'numPacketsBurst',
         nargs      = '+',
         type       = int,
-        # default    = 5,
-        default = None,
+        default    = 5,
+        # default = None,
         help       = '[app] Number of packets in a burst, per node.',
     )
     # rpl
@@ -137,7 +137,7 @@ def parseCliOptions():
         nargs      = '+',
         type       = int,
         # default    = [1,4,8],
-        default    = [0], # was [1],
+        default    = [1],
         help       = '[otf] OTF threshold (cells).',
     )
     parser.add_argument( '--otfHousekeepingPeriod',
@@ -210,7 +210,7 @@ def parseCliOptions():
         dest       = 'algorithm',
         nargs      = '+',
         type       = str,
-        default    = ['otf', 'local_voting'],
+        default    = ['local_voting'],
         help       = 'Select the load balancing algorithm, "otf" or "local_voting"',
     )
     
@@ -269,10 +269,11 @@ def runSims(options):
             simstats         = SimStats.SimStats(runNum)
             
             # start simulation run
-            simengine.start()
+            # simengine.start()
+            simengine.run()
             
             # wait for simulation run to end
-            simengine.join()
+            # simengine.join()
             
             # destroy singletons
             simstats.destroy()
