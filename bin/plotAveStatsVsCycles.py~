@@ -403,7 +403,7 @@ def genStatsVsCyclePlots(vals, dirs, outfilename, xlabel, ylabel, xmin=False, xm
             index = 4
         elif 'algorithm_otf_' in dataDir :
             index = 0
-            label = "otf, thr={}".format(re.search(r'_(\d+)$', dataDir).group())
+            label = "otf, thr={}".format(re.search(r'_\d+$', dataDir).group())
         elif 'algorithm_local_voting' in dataDir :
             index = 1
             label = 'local voting'
