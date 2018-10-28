@@ -128,6 +128,14 @@ class Mote(object):
         self.timeBetweenOTFevents      = []
         self.inTraffic                 = {}                    # indexed by neighbor
         self.inTrafficMovingAve        = {}                    # indexed by neighbor
+        # eotf
+        self.txInInterval              = {}                    # indexed by neighbor
+        # local voting lv
+        self.q                         = {}
+        self.q2                        = {}
+        self.z                         = {}
+        self.z2                        = {} 
+        self.z_last                    = {}
         # 6top
         self.numCellsToNeighbors       = {}                    # indexed by neighbor, contains int
         self.numCellsFromNeighbors     = {}                    # indexed by neighbor, contains int
@@ -555,17 +563,26 @@ class Mote(object):
         else:
             delay=self.otfHousekeepingPeriod*(0.9+0.2*random.random())
                   
-        
+        assert self.settings.algorithm in ['local_voting', 'local_voting_z', 'otf', 'eotf']
         
         self.engine.scheduleIn(
             delay       = delay,
-            cb          = self._lv_action_housekeeping if self.settings.algorithm == 'local_voting' else self._otf_action_housekeeping,
+            cb          = self._lv_action_housekeeping if self.settings.algorithm in ['local_voting', 'local_voting_z'] else self._otf_action_housekeeping,
             uniqueTag   = (self.id,'_otf_action_housekeeping'),
             priority    = 4,
         )
 
     def _lv_get_p(self,j):
       return sum(v['dir'] == 'TX' and v['neighbor'] == j for v in self.schedule.values())
+
+
+    def _lv_get_w(self, parent, src, dst):
+        if self in [src,dst] or parent in [src, dst]:
+            return 1 / (1.0 * self.settings.numChans)
+        elif dst in self._myNeigbors() or src in parent._myNeigbors():
+            return 1 / (1.0 * self.settings.numChans)
+        else:
+            return 0;
 
     def _lv_action_housekeeping(self):
         '''
@@ -576,83 +593,53 @@ class Mote(object):
 
             # calculate my total generated traffic, in pkt/s
             genTraffic       = 0
+
             # generated/relayed by me
             for neighborOrMe in self.inTraffic:
                 genTraffic  += self.inTraffic[neighborOrMe]/self.otfHousekeepingPeriod
-
-            # reset the incoming traffic statistics, so they can build up until next housekeeping
-            self._otf_resetInboundTrafficCounters()
 
             # convert to pkts/cycle
             genTraffic      *= self.settings.slotframeLength*self.settings.slotDuration
             p_sum = self.settings.slotframeLength
 
             for dest, portion in self.trafficPortionPerParent.items():
-                q_ij = portion * len(self.txQueue) # if dest == self.preferredParent else 0 # all packets go to the same uplink
+                q_ij = portion * len(self.txQueue) 
+
+                if self.settings.algorithm == 'local_voting_z':
+                     q_ij += genTraffic/ (1.0 * self.settings.numChans)
 
                 p_max_ij = math.ceil(portion * genTraffic + q_ij)
+                self.z_last[(self,dest)] = portion * genTraffic
                 p_min_ij = 1
 
-                p_ij = sum(v['dir'] == 'TX' and v['neighbor'] == dest for v in self.schedule.values())
+                p_ij = self._lv_get_p(dest)
 
                 u_ij = None # So the variable exists
 #                 print "time: %s src: %s dst: %s queue: %s schedule: %s (%s)" % (self.engine.asn, self.id, dest.id, q_ij, p_ij, u_ij)
                                       
                 # Traffic sent by us is counted
-                q_sum = len(self.txQueue) / (1.0 * self.settings.numChans)
-#                p_sum1 = self._lv_get_p(dest)
-#                if q_sum > 0 : print "1: len(self.txQueue) = %s p= %s" % (q_sum, self._lv_get_p(dest))
+                q_sum = (len(self.txQueue))/ (1.0 * self.settings.numChans)
+
+                if self.settings.algorithm == 'local_voting_z':
+                     q_sum += genTraffic/ (1.0 * self.settings.numChans)
+
                 counted_links = set([(self, parent) for parent in self.parentSet ])
 
-                # Traffic received by us is counted
-                for n in self._myNeigbors():
-                    if (n,self) not in counted_links and self in n.parentSet:
-                        q_sum += n.trafficPortionPerParent[self]*len(n.txQueue) / (1.0 * self.settings.numChans)
-#                        p_sum1 += n._lv_get_p(self)
-#                        if n.trafficPortionPerParent[self]*len(n.txQueue) > 0 : 
-#                            print "2: n.trafficPortionPerParent[self]*len(n.txQueue) = %s, p= %s" % ( n.trafficPortionPerParent[self]*len(n.txQueue), n._lv_get_p(self) )
-                        counted_links.add((n,self))
-
-                # Traffic sent by dest is counted
-                for n in dest.parentSet:
-                    if (dest, n) not in counted_links:
-                        q_sum += dest.trafficPortionPerParent[n] * len(dest.txQueue) / (1.0 * self.settings.numChans)
-#                        p_sum1 += dest._lv_get_p(n)
-#                        if dest.trafficPortionPerParent[n] * len(dest.txQueue) > 0: 
-#                            print "3: dest.trafficPortionPerParent[n] * len(dest.txQueue)= %s, p= %s" % (dest.trafficPortionPerParent[n] * len(dest.txQueue), dest._lv_get_p(n))
-                        counted_links.add((dest,n))
-
-                # Traffic received by dest is counted
-                for n in dest._myNeigbors():
-                    if (n,dest) not in counted_links and dest in n.parentSet:
-                        q_sum += n.trafficPortionPerParent[dest]*len(n.txQueue) / (1.0 * self.settings.numChans)
-#                        p_sum1 += n._lv_get_p(dest)
-#                        if n.trafficPortionPerParent[dest]*len(n.txQueue) > 0: 
-#                          print "4: n.trafficPortionPerParent[dest]*len(n.txQueue)= %s, p= %s" % (n.trafficPortionPerParent[dest]*len(n.txQueue), n._lv_get_p(dest))
-                        counted_links.add((n,dest))
-
-                # Traffic send by dest's neighbors should be counted
-                for n in dest._myNeigbors():
-                    if n != self:
-                        for n_parent, n_portion in n.trafficPortionPerParent.items():
-                            if (n,n_parent) not in counted_links:
-                                q_sum += (n_portion * len(n.txQueue) / self.settings.numChans)
-#                                p_sum1 += (1.0 * n._lv_get_p(n_parent))/ self.settings.numChans
-#                                if (n_portion * len(n.txQueue) / self.settings.numChans) > 0: 
-#                                    print "5: (n_portion * len(n.txQueue) / self.settings.numChans)= %s, p= %s" % ((n_portion * len(n.txQueue) / self.settings.numChans), n._lv_get_p(n_parent))
-                                counted_links.add((n, n_parent))
-
-                # Traffic received by our neighbors should by counted, but only
-                # if not counted previously
-                for n in self._myNeigbors():
-                    for src in n._myNeigbors():
-                        if src != self and n in src.parentSet and (src, n) not in counted_links:
-                            q_sum += (src.trafficPortionPerParent[n] * len(src.txQueue) / self.settings.numChans)
-#                            p_sum1 += (1.0 * src._lv_get_p(n))/ self.settings.numChans
-#                            if (src.trafficPortionPerParent[n] * len(src.txQueue) / self.settings.numChans) > 0: 
-#                                print "6: (src.trafficPortionPerParent[n] * len(src.txQueue) / self.settings.numChans)= %s, p= %s" % ((src.trafficPortionPerParent[n] * len(src.txQueue) / self.settings.numChans), src._lv_get_p(n))
-                            counted_links.add((src, n))
-                    
+                
+                for src,dst in self.q:
+                    if (src,dst) not in counted_links:
+                        q_sum += self._lv_get_w(dest,src,dst) * self.q[(src,dst)] 
+                        if self.settings.algorithm == 'local_voting_z':
+                            q_sum += self._lv_get_w(dest,src,dst) * self.z[(src,dst)]
+                        counted_links.add((src,dst))
+                            
+                for src,dst in self.q2:
+                    if (src,dst) not in counted_links:
+                        q_sum += self._lv_get_w(dest,src,dst) * self.q2[(src,dst)] 
+                        if self.settings.algorithm == 'local_voting_z':
+                            q_sum += self._lv_get_w(dest,src,dst) * self.z2[(src,dst)]
+                        counted_links.add((src,dst))
+ 
                 if q_sum > 0:
 
                     u_ij = int(max(p_min_ij,min(round(q_ij * p_sum / (1.0 * q_sum)), p_max_ij))) - p_ij
@@ -683,6 +670,10 @@ class Mote(object):
                         self._stats_incrementMoteStats('otfRemove')
                         self._sixtop_removeCells(dest, p_dest)
 
+            # reset the incoming traffic statistics, so they can build up until next housekeeping
+            # print "reseting, {0} {1}".format(self.id, self.engine.getAsn())
+            self._otf_resetInboundTrafficCounters()
+
             # schedule next housekeeping
             self._otf_schedule_housekeeping()
 
@@ -692,7 +683,11 @@ class Mote(object):
         '''
         with self.dataLock:
         
-          
+            # for eotf
+            beta_ratio = 0.2
+            beta_slots = self.settings.otfThreshold
+            alpha = 0.2
+
             # collect all neighbors I have RX cells to
             rxNeighbors = [cell['neighbor'] for ((ts,ch),cell) in self.schedule.items() if cell['dir']==self.DIR_RX]
   
@@ -755,6 +750,12 @@ class Mote(object):
                 nowCells      = self.numCellsToNeighbors.get(parent,0)
                 if self.settings.otfEnabled==True:
                     reqCells      = int(math.ceil(portion*genTraffic*etx))  
+                    # for eotf
+                    if self.settings.algorithm == 'eotf':
+                        # print "The vars are: {0} {1} {2} {3}".format(len(self.txQueue),beta_ratio,self.settings.buffer, reqCells)
+                        if len(self.txQueue) > beta_ratio * int(self.settings.buffer):
+                            reqCells += beta_slots
+                            
                 else: #optimal allocation, only for an ideal PHY 
                     self.myMaxCellDemand=self.getMyMaxCellDemand()
                     reqCells=self.myMaxCellDemand                                                                                   
@@ -803,7 +804,15 @@ class Mote(object):
                     # calculate how many to remove
                     #emunicio, I want always there is at least 1 cell available
                     # cells that are scheduled to non-parent nodes, will be removed later
-                    numCellsToRemove = nowCells-reqCells
+
+                    # for eotf
+                    if self.settings.algorithm == 'eotf' and (self.txInInterval[parent] < alpha * nowCells):
+                        numCellsToRemove = beta_slots
+                    else: # legacy OTF
+                        numCellsToRemove = nowCells-reqCells
+
+
+
                     if reqCells==0:
                       numCellsToRemove=numCellsToRemove-1  
                      
@@ -844,6 +853,7 @@ class Mote(object):
         with self.dataLock:
             for neighbor in self._myNeigbors()+[self]:
                 self.inTraffic[neighbor] = 0
+                self.txInInterval[neighbor] = 0
     
     def _otf_incrementIncomingTraffic(self,neighbor):
         with self.dataLock:
@@ -1736,6 +1746,10 @@ class Mote(object):
                                 if len(self.pktToSend) >= (numberPacketSentInThisTs+1):                                      
                                         cell['numTx'] += 1
                                         self.numTransmissions += 1
+                                        if cell['neighbor'] in self.txInInterval:
+                                             self.txInInterval[cell['neighbor']] += 1
+                                        else:
+                                             self.txInInterval[cell['neighbor']] = 1
                                         self.schedule[(ts,i_ch)]['waitingfor']=self.DIR_TX                                     
                                         
                                         self.propagation.startTx(
@@ -1900,11 +1914,30 @@ class Mote(object):
         ts    = asn%self.settings.slotframeLength
         with self.dataLock:
            
+            # For local voting LV
+            if smac:
+                for dest, portion in smac.trafficPortionPerParent.items():
+                    self.q[(smac, dest)] = portion * len(smac.txQueue)
+                    if (smac,dest) in smac.z_last:
+                        self.z[(smac, dest)] = smac.z_last[(smac,dest)]
+                    else:
+                        self.z[(smac,dest)] = 0
+                self.q2.update(smac.q)
+                self.z2.update(smac.z)
+
+
             if type=='SIXP_TYPE_MYSCHEDULE':
 
                 if self.schedule.has_key((ts,channel)) and self.schedule[(ts,channel)]['waitingfor']==self.DIR_SHARED and self.schedule[(ts,channel)]['dir']==self.DIR_SHARED:
                   
                     if smac:
+
+
+
+
+
+
+
                         # I received a packet
                         
                         # log charge usage

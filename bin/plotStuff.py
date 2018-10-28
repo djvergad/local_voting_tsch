@@ -25,11 +25,12 @@ DATADIR       = '.'
 CONFINT       = 0.95
 
 COLORS_TH     = {
-    0:        'magenta',
-    1:        'blue',
-    4:        'green',
-    'NA':     'red' ,
-    10:       'black',
+    'otf_4':          'magenta',
+    'otf_10':         'blue',
+    'eotf_4':         'green',
+    'eotf_10':        'cyan',
+    'local_voting':   'red' ,
+    'local_voting_z': 'black',
 }
 
 LINESTYLE_TH       = {
@@ -41,13 +42,13 @@ LINESTYLE_TH       = {
 }
 
 ECOLORS_TH         = {
-    0:        'magenta',
-    1:        'blue',
-    4:        'green',
-    'NA':     'red',
-    10:       'black',
+    'otf_4':          'magenta',
+    'otf_10':         'blue',
+    'eotf_4':         'green',
+    'eotf_10':        'cyan',
+    'local_voting':   'red' ,
+    'local_voting_z': 'black',
 }
-
 COLORS_PERIOD      = {
     'NA':     'red',
     1:        'blue',
@@ -380,15 +381,15 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
 #        ax.set_ylim(ymin=ymin,ymax=ymax)
         plots = []
         legends = []
-        for alg in [ 'otf', 'local_voting' ]:
+        for alg in [ 'otf', 'eotf', 'local_voting', 'local_voting_z' ]:
             for th in otfThresholds:
                 for ((otfThreshold,pkPeriod,algorithm),data) in plotData.items():
                     if algorithm==alg and otfThreshold == th:
 
-                        if algorithm == 'local_voting' and otfThreshold != 0:
+                        if algorithm in [ 'local_voting', 'local_voting_z'] and otfThreshold != 10:
                             continue
 
-                        t = th if alg == 'otf' else 'NA'
+                        t = "{0}_{1}".format(alg,th) if alg in ['otf', 'eotf'] else alg
                         plots += [
                             ax.errorbar(
                                 x        = data['x'],
@@ -399,7 +400,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
                                 ecolor   = ECOLORS_TH[t],
                             )
                         ]
-                        legends += ( ['{0}_{1}'.format(alg,th)] if alg == 'otf' else [ alg ] )
+                        legends += ( ['{0}_{1}'.format(alg,th)] if alg in ['otf','eotf'] else [ alg ] )
 		legendPlots = tuple(plots)
         allaxes += [ax]
 
@@ -510,7 +511,7 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
     for algorithm in algorithms:
         for threshold in otfThresholds:
 
-            if algorithm == 'local_voting' and threshold != 0:
+            if algorithm in ['local_voting', 'local_voting_z'] and threshold != 10:
                 continue
 
             d = {}
@@ -523,15 +524,15 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
             y     = [d[k]['mean'] for k in x]
             yerr  = [d[k]['confint'] for k in x]
 
-            t     = threshold if algorithm == 'otf' else 'NA'
+            t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
 
             bars += [ax.bar(tics, y, 0.1, color= COLORS_TH[t], edgecolor='black', ecolor=ECOLORS_TH[t], yerr=yerr)]
-            legends += [ '{}, thr={}'.format(algorithm,threshold) ] if algorithm == 'otf' else [ algorithm ]
+            legends += [ '{}, thr={}'.format(algorithm,threshold) ] if algorithm in ['otf','eotf'] else [ algorithm ]
             offset += 0.15
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
     ax.set_xticklabels(x)
-    ax.legend( bars, legends, loc="best", prop={'size':10})
+    ax.legend( bars, legends, loc='best', prop={'size':10}, fancybox=True, framealpha=0.5)
 
 #            matplotlib.pyplot.errorbar(
 #                x        = x,
@@ -749,7 +750,7 @@ def plot_latency_vs_threshold(dataBins):
         plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
                       buf == 100 and pkt in [1, 5, 25]),
         ymin=0,
-        ymax=100,
+        ymax=130,
         ylabel='average end-to-end latency (s)',
         filename='latency_vs_threshold_buf_100',
         legend='(packets per burst, num of parents)'
@@ -1663,7 +1664,7 @@ def plot_reliability_vs_threshold(dataBins):
     for algorithm in algorithms:
         for threshold in otfThresholds:
 
-            if algorithm == 'local_voting' and threshold != 0:
+            if algorithm in ['local_voting','local_voting_z'] and threshold != 10:
                 continue
 
             d = {}
@@ -1675,9 +1676,9 @@ def plot_reliability_vs_threshold(dataBins):
             tics  = [i+.25+offset for i in range(len(x))]
             y     = [d[k]['mean'] for k in x]
             yerr  = [d[k]['confint'] for k in x]
-            t     = threshold if algorithm == 'otf' else 'NA'
+            t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
             bars += [ax.bar(tics, y, 0.1, color= COLORS_TH[t], edgecolor='black', ecolor=ECOLORS_TH[t], yerr=yerr)]
-            legends += [ '{}, thr={}'.format(algorithm,threshold) if algorithm == 'otf' else algorithm ]
+            legends += [ '{}, thr={}'.format(algorithm,threshold) if algorithm in ['otf','eotf'] else algorithm ]
             offset += 0.15
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])

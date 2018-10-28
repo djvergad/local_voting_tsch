@@ -11,7 +11,7 @@ import math
 import multiprocessing
 import fileinput
 
-MIN_TOTAL_RUNRUNS = 10 # 500 # 94 # 500
+MIN_TOTAL_RUNRUNS = 40 # 500 # 94 # 500
 
 def runOneSim(params):
     (cpuID,numRuns) = params
@@ -20,12 +20,12 @@ def runOneSim(params):
     command    = ['python runSimOneCPU.py']
     command    += ['--numRuns {0}'.format(numRuns)]
     command    += ['--cpuID {0}'.format(cpuID)]
-    # command    += ['--numPacketsBurst {0}'.format(1)]
-    # command    += ['--parents {0}'.format(3)]
+#    command    += ['--numPacketsBurst {0}'.format(5)]
+#    command    += ['--parents {0}'.format(3)]
     command    += ['--burstTimestamp {0}'.format(20)]
     command    += ['--pkPeriod {0}'.format(16)]
     command    += ['--buffer {0}'.format(100)]
-    command    += ['--algorithm {0}'.format('otf')] # otf,local_voting
+#     command    += ['--algorithm {0}'.format('otf')] # otf,local_voting
     # command    += ['--otfThreshold {0}'.format(0)]
     command    += ['--scheduler {0}'.format('deBras')] # deBras, none
     # command    += ['--numChans {0}'.format(1)]

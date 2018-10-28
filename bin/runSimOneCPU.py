@@ -135,7 +135,7 @@ def parseCliOptions():
         dest       = 'otfThreshold',
         nargs      = '+',
         type       = int,
-        default    = [0,1,4,10],
+        default    = [4,10],
         # default    = [1], # was [0],
         help       = '[otf] OTF threshold (cells).',
     )
@@ -209,7 +209,7 @@ def parseCliOptions():
         dest       = 'algorithm',
         nargs      = '+',
         type       = str,
-        default    = ['otf', 'local_voting'],
+        default    = ['otf', 'local_voting', 'local_voting_z', 'eotf'],
         help       = 'Select the load balancing algorithm, "otf" or "local_voting"',
     )
     parser.add_argument('--buffer',
