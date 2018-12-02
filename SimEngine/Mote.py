@@ -591,6 +591,7 @@ class Mote(object):
 
         with self.dataLock:
 
+
             # calculate my total generated traffic, in pkt/s
             genTraffic       = 0
 
@@ -2252,7 +2253,7 @@ class Mote(object):
     #===== stats
     
     # mote state  
-    def getMoteStats(self):
+    def getMoteStats(self, reset = True):
                       
         # gather statistics
         with self.dataLock:
@@ -2275,13 +2276,16 @@ class Mote(object):
             returnVal['txBroadcast']     = self.engine.bcstTransmitted
             returnVal['rxBroadcast']     = self.engine.bcstReceived
             returnVal['numRandomSelections']     = self.numRandomSelections
-        # reset the statistics
-        self._stats_resetMoteStats()
-        self._stats_resetQueueStats()
-        self._stats_resetLatencyStats()
-        self._stats_resetHopsStats()
-        self._stats_resetRadioStats()
-        
+            returnVal['numRandomSelections'] = self.numRandomSelections
+
+        if reset:
+            # reset the statistics
+            self._stats_resetMoteStats()
+            self._stats_resetQueueStats()
+            self._stats_resetLatencyStats()
+            self._stats_resetHopsStats()
+            self._stats_resetRadioStats()
+
         return returnVal
     
     

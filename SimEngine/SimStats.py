@@ -22,6 +22,7 @@ log.addHandler(NullHandler())
 
 import SimEngine
 import SimSettings
+import math
 
 #============================ defines =========================================
 
@@ -114,7 +115,8 @@ class SimStats(object):
                     'cycle':               cycle,
                 }.items() +
                 self._collectSumMoteStats().items()  +
-                self._collectScheduleStats().items()
+                self._collectScheduleStats().items() +
+                self._collectBalancingStats().items()
             )
         )
         
@@ -147,7 +149,7 @@ class SimStats(object):
         returnVal = {}
         
         for mote in self.engine.motes:
-            moteStats        = mote.getMoteStats()
+            moteStats        = mote.getMoteStats(False)
             if not returnVal:
                 returnVal    = moteStats
             else:
@@ -156,8 +158,69 @@ class SimStats(object):
         
         return returnVal
 
-    
-        
+    def _collectBalancingStats(self):
+
+        print "ASN: {}".format(self.engine.asn)
+        loadValues = []
+        congestedLoadValues = []
+        congested5LoadValues = []
+
+
+        for mote in self.engine.motes:
+
+            moteStats = mote.getMoteStats()
+            # delay = moteStats['aveQueueDelay']
+            delay = moteStats['aveQueueDelay']
+            allocated = moteStats['numTxCells']
+            queueLendth = moteStats['txQueueFill']
+            if queueLendth > 0 and allocated > 0:
+                load = float(queueLendth)/allocated
+                loadValues += [load]
+                if queueLendth > allocated:
+                    congestedLoadValues += [load]
+                    if queueLendth > 4:
+                        congested5LoadValues += [load]
+
+        result = {
+        }
+
+        def initparams(prefix):
+            result['{}Min'.format(prefix)] = 0
+            result['{}Max'.format(prefix)] = 0
+            result['{}Avg'.format(prefix)] = 0
+            result['{}AvgWithZero'.format(prefix)] = 0
+            result['{}Jain'.format(prefix)] = 1
+            result['{}G'.format(prefix)] = 1
+
+        initparams('LoadAll')
+        initparams('LoadCong')
+        initparams('LoadCong5')
+
+        def fillparams(prefix, values):
+            def jainFainessIndex(values):
+                return sum(values) ** 2 / (len(values) * reduce(lambda sum, val: sum + val ** 2, values, 0))
+
+            def gFainessIndex(values):
+                kappa = 1
+                max_val = max(values)
+                return reduce(lambda prod, val: prod * math.sin(math.pi * val / (2 * max_val)) ** (1 / kappa), values,1)
+
+            result['{}Min'.format(prefix)] = min(values)
+            result['{}Max'.format(prefix)] = max(values)
+            result['{}Avg'.format(prefix)] = sum(values) / len(values)
+            result['{}AvgWithZero'.format(prefix)] = sum(values) / len(self.engine.motes)
+            result['{}Jain'.format(prefix)] = jainFainessIndex(values)
+            result['{}G'.format(prefix)] = gFainessIndex(values)
+
+        if len(loadValues) > 0:
+            fillparams('LoadAll', loadValues)
+        if len(congestedLoadValues) > 0:
+            fillparams('LoadCong', congestedLoadValues)
+        if len(congested5LoadValues) > 0:
+            fillparams('LoadCong5', congested5LoadValues)
+
+        return result
+
     def _collectScheduleStats(self):
         
         # compute the number of schedule collisions

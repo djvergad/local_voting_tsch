@@ -625,6 +625,29 @@ def plot_appReachesDagroot_vs_time(dataBins):
                 )
 
 
+def plot_load_vs_time(dataBins):
+    for label in ['LoadAllAvgWithZero', 'LoadAllG', 'LoadAllJain', 'LoadAllMax', 'LoadAllMin',
+                  'LoadCong5Avg', 'LoadCong5AvgWithZero', 'LoadCong5G', 'LoadCong5Jain', 'LoadCong5Max', 'LoadCong5Min',
+                  'LoadCongAvg', 'LoadCongAvgWithZero', 'LoadCongG', 'LoadCongJain', 'LoadCongMax', 'LoadCongMin']:
+    #     label = 'LoadAllAvg'
+        print "Loading label {}".format(label)
+        plotData = gather_per_cycle_data(dataBins, label)
+
+        for b in getBufferSizes(plotData):
+            for p in getParentSizes(plotData):
+                for n in getNumPacketsBurst(plotData):
+                    plot_vs_time(
+                        plotData=dict(
+                            ((th, per, alg), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
+                            buf == b and par == p and pkt == n),
+                        ymin=0,
+                        ymax=1000,
+                        ylabel=label,
+                        filename='{}_vs_time_buf_{}_par_{}_pkt_{}'.format(label, b, p, n),
+                        withError=False,
+                    )
+
+
 def plot_numRxCells_vs_time(dataBins):
 
     plotData  = gather_per_cycle_data(dataBins, 'numRxCells')
@@ -1721,42 +1744,23 @@ def main():
 
     dataBins = binDataFiles()
 
-    plot_time_all_reached_vs_threshold(dataBins)
-    plot_max_latency_vs_threshold(dataBins)
-    plot_latency_vs_threshold(dataBins)
-    plot_latency_vs_time(dataBins) ### Good for 25,1
+    plot_load_vs_time(dataBins)
 
-    plot_numRxCells_vs_time(dataBins)
-
-    plot_chargeConsumed_vs_threshold(dataBins)
-    plot_chargeConsumed_vs_time(dataBins)
-
-
-    plot_reliability_vs_threshold(dataBins)
-    plot_reliability_vs_time(dataBins)
-    plot_txQueueFill_vs_threshold(dataBins)
-    plot_max_txQueueFill_vs_threshold(dataBins)
-
-    ### need to rerun scenario for these, it gives sum of avg, instead of
-    ### avg of avg due multiple motes
-    # plot_max_queue_delay_vs_threshold(dataBins)
-    # plot_ave_q_delay_vs_threshold(dataBins)
-
-
-#  OLD PLOTS
-
-#    plot_txQueueFill_vs_time(dataBins)
-    # latency
+    # plot_time_all_reached_vs_threshold(dataBins)
+    # plot_max_latency_vs_threshold(dataBins)
+    # plot_latency_vs_threshold(dataBins)
+    # plot_latency_vs_time(dataBins) ### Good for 25,1
     #
-
-    # numCells
-#    plot_numCells_vs_time(dataBins)
-#    plot_numCells_vs_threshold(dataBins)
-#    plot_numCells_otfActivity_vs_time(dataBins)
-
-    # otfActivity
-#    plot_otfActivity_vs_time(dataBins)
-#    plot_otfActivity_vs_threshold(dataBins)
+    # plot_numRxCells_vs_time(dataBins)
+    #
+    # plot_chargeConsumed_vs_threshold(dataBins)
+    # plot_chargeConsumed_vs_time(dataBins)
+    #
+    #
+    # plot_reliability_vs_threshold(dataBins)
+    # plot_reliability_vs_time(dataBins)
+    # plot_txQueueFill_vs_threshold(dataBins)
+    # plot_max_txQueueFill_vs_threshold(dataBins)
 
 if __name__=="__main__":
     main()
