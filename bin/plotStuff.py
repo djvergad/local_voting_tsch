@@ -1746,21 +1746,21 @@ def main():
 
     plot_load_vs_time(dataBins)
 
-    # plot_time_all_reached_vs_threshold(dataBins)
-    # plot_max_latency_vs_threshold(dataBins)
-    # plot_latency_vs_threshold(dataBins)
-    # plot_latency_vs_time(dataBins) ### Good for 25,1
-    #
-    # plot_numRxCells_vs_time(dataBins)
-    #
-    # plot_chargeConsumed_vs_threshold(dataBins)
-    # plot_chargeConsumed_vs_time(dataBins)
-    #
-    #
-    # plot_reliability_vs_threshold(dataBins)
-    # plot_reliability_vs_time(dataBins)
-    # plot_txQueueFill_vs_threshold(dataBins)
-    # plot_max_txQueueFill_vs_threshold(dataBins)
+    plot_time_all_reached_vs_threshold(dataBins)
+    plot_max_latency_vs_threshold(dataBins)
+    plot_latency_vs_threshold(dataBins)
+    plot_latency_vs_time(dataBins) ### Good for 25,1
+
+    plot_numRxCells_vs_time(dataBins)
+
+    plot_chargeConsumed_vs_threshold(dataBins)
+    plot_chargeConsumed_vs_time(dataBins)
+
+
+    plot_reliability_vs_threshold(dataBins)
+    plot_reliability_vs_time(dataBins)
+    plot_txQueueFill_vs_threshold(dataBins)
+    plot_max_txQueueFill_vs_threshold(dataBins)
 
 if __name__=="__main__":
     main()
