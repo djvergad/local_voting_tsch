@@ -25,8 +25,12 @@ DATADIR       = '.'
 CONFINT       = 0.95
 
 COLORS_TH     = {
+    'otf_0':          'darkmagenta',
+    'otf_1':          'darkturquoise',
     'otf_4':          'magenta',
     'otf_10':         'blue',
+    'eotf_0':         'lime',
+    'eotf_1':         'gray',
     'eotf_4':         'green',
     'eotf_10':        'cyan',
     'local_voting':   'red' ,
@@ -42,8 +46,12 @@ LINESTYLE_TH       = {
 }
 
 ECOLORS_TH         = {
+    'otf_0':          'darkmagenta',
+    'otf_1':          'darkturquoise',
     'otf_4':          'magenta',
     'otf_10':         'blue',
+    'eotf_0':         'lime',
+    'eotf_1':         'gray',
     'eotf_4':         'green',
     'eotf_10':        'cyan',
     'local_voting':   'red' ,
@@ -342,7 +350,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
     algorithms          = sorted(list(set(algorithms)), reverse=withError)
 
     # fig = matplotlib.pyplot.figure()
-    fig, ax = matplotlib.pyplot.subplots()
+    fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
 
     def plotForEachPkPeriod(ax,plotData,pkPeriod_p):
         ax.set_xlim(xmin=0,xmax=100)
@@ -422,7 +430,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
     matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.eps'.format(filename)))
     matplotlib.pyplot.close('all')
 
-def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents, buffer size)'):
+def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents, buffer size)', legend_position='best', logy=False):
 
     prettyp   = False
 
@@ -500,7 +508,7 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
     #===== plot
 
 #    fig = matplotlib.pyplot.figure()
-    fig, ax = matplotlib.pyplot.subplots()
+    fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
     # matplotlib.pyplot.ylim(ymin=ymin,ymax=ymax)
     ax.set_xlabel('Parameters: {0}'.format(legend))
     ax.set_ylabel(ylabel)
@@ -526,13 +534,16 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
 
             t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
 
-            bars += [ax.bar(tics, y, 0.1, color= COLORS_TH[t], edgecolor='black', ecolor=ECOLORS_TH[t], yerr=yerr)]
+            bars += [ax.bar(tics, y, 0.9 / (len(x)), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) ] if algorithm in ['otf','eotf'] else [ algorithm ]
-            offset += 0.15
+            offset += 1.3 / (len(x))
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
     ax.set_xticklabels(x)
-    ax.legend( bars, legends, loc='best', prop={'size':10}, fancybox=True, framealpha=0.5)
+    ax.legend( bars, legends, loc=legend_position, prop={'size':10})
+
+    if logy:
+        ax.set_yscale('log')
 
 #            matplotlib.pyplot.errorbar(
 #                x        = x,
@@ -624,12 +635,29 @@ def plot_appReachesDagroot_vs_time(dataBins):
                     withError = False,
                 )
 
+def plot_load_vs_threshold(dataBins):
+    for label in ['LoadAllG', 'LoadAllJain', 'LoadCongG', 'LoadCongJain']:
+        plotData  = gather_ave_data(dataBins, label)
+
+        #ymax = { 1: 2.5, 5: 15, 25: 40 }
+
+
+        plot_vs_threshold(
+            plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if buf == 100),
+            ymin=0,
+            ymax=130,
+            ylabel=label,
+            filename='{}_vs_threshold_buf_100'.format(label),
+            legend='(packets per burst, num of parents)',
+            legend_position='lower left'
+        )
+
 
 def plot_load_vs_time(dataBins):
-    for label in ['LoadAllAvgWithZero', 'LoadAllG', 'LoadAllJain', 'LoadAllMax', 'LoadAllMin',
-                  'LoadCong5Avg', 'LoadCong5AvgWithZero', 'LoadCong5G', 'LoadCong5Jain', 'LoadCong5Max', 'LoadCong5Min',
-                  'LoadCongAvg', 'LoadCongAvgWithZero', 'LoadCongG', 'LoadCongJain', 'LoadCongMax', 'LoadCongMin']:
-    #     label = 'LoadAllAvg'
+#    for label in ['LoadAllAvgWithZero', 'LoadAllG', 'LoadAllJain', 'LoadAllMax', 'LoadAllMin',
+#                  'LoadCong5Avg', 'LoadCong5AvgWithZero', 'LoadCong5G', 'LoadCong5Jain', 'LoadCong5Max', 'LoadCong5Min',
+#                  'LoadCongAvg', 'LoadCongAvgWithZero', 'LoadCongG', 'LoadCongJain', 'LoadCongMax', 'LoadCongMin']:
+    for label in ['LoadAllG', 'LoadAllJain', 'LoadCongG', 'LoadCongJain']:
         print "Loading label {}".format(label)
         plotData = gather_per_cycle_data(dataBins, label)
 
@@ -766,12 +794,12 @@ def plot_latency_vs_time(dataBins):
 def plot_latency_vs_threshold(dataBins):
     plotData  = gather_ave_data(dataBins, 'aveLatency', 'appReachesDagroot')
 
-    ymax = { 1: 2.5, 5: 15, 25: 40 }
+# ymax = { 1: 2.5, 5: 15, 25: 40 }
 
 
     plot_vs_threshold(
         plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+                      buf == 100 ),
         ymin=0,
         ymax=130,
         ylabel='average end-to-end latency (s)',
@@ -784,7 +812,7 @@ def plot_txQueueFill_vs_threshold(dataBins):
 
     plot_vs_threshold(
         plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+                      buf == 100),
         ymin=0,
         ymax=40,
         ylabel='average queue size (packets)',
@@ -796,8 +824,7 @@ def plot_max_txQueueFill_vs_threshold(dataBins):
     plotData = gather_max_data(dataBins, 'txQueueFill')
 
     plot_vs_threshold(
-        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if buf == 100),
         ymin=0,
         ymax=40,
         ylabel='max avg queue size (packets)',
@@ -809,11 +836,8 @@ def plot_ave_q_delay_vs_threshold(dataBins):
 
     plotData  = gather_ave_data(dataBins, 'aveQueueDelay', ['appReachesDagroot', 'appRelayed'])
 
-    ymax = { 1: 2.5, 5: 15, 25: 40 } 
-
     plot_vs_threshold(
-        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if buf == 100 ),
         ymin       = 0,
         ymax       = 100,
         ylabel     = 'average queue delay (s)',
@@ -873,7 +897,7 @@ def gather_ave_data(dataBins, label, count_label=None):
 
 #        values += [ perCycle_count[k] * unit_factor * v_i /sum_perCycle_count for v_i in v]
 
-        plotData[(otfThreshold,pkPeriod,algorithm,parent_size,buffer_size,numPacketsBurst)] = {0: [ v / count_values[run] for run,v in enumerate(sum_values) ]  }
+        plotData[(otfThreshold,pkPeriod,algorithm,parent_size,buffer_size,numPacketsBurst)] = {0: [ v / count_values[run] if count_values[run]>0 else 0 for run,v in enumerate(sum_values) ]  }
 
     return plotData
 
@@ -899,11 +923,8 @@ def plot_max_latency_vs_threshold(dataBins):
 
     plotData  = gather_max_data(dataBins, 'aveLatency')
 
-    ymax = { 1: 15, 5: 60, 25: 100 } 
-
     plot_vs_threshold(
-        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if buf == 100),
         ymin       = 0,
         ymax       = 100,
         ylabel     = 'max end-to-end latency (s)',
@@ -918,8 +939,7 @@ def plot_max_queue_delay_vs_threshold(dataBins):
 
     plot_vs_threshold(
         plotData=dict(
-            ((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-            buf == 100 and pkt in [1, 5, 25]),
+            ((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if buf == 100),
         ymin       = 0,
         ymax       = 100,
         ylabel     = 'max queue delay (s)',
@@ -931,24 +951,14 @@ def plot_chargeConsumed_vs_threshold(dataBins):
 
     charge  = gather_max_data(dataBins, 'chargeConsumed')
 
-    ymax = { 1: 7, 5: 15, 25: 20 } 
-
-#    for n in getNumPacketsBurst(plotData):
-#        plot_vs_threshold(
-#            plotData   = dict(((th,per,alg,par,buf),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if pkt == n),
-#            ymin       = 0,
-#            ymax       = ymax[n],
-#            ylabel     = 'charge consumed x1e5',
-#            filename   = 'chargeConsumed_vs_threshold_pkt_{}'.format(n),
-#        )
     plot_vs_threshold(
-        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in charge.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in charge.items() if buf == 100),
         ymin       = 0,
         ymax       = 20,
         ylabel     = 'charge consumed x1e5',
         filename   = 'chargeConsumed_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)'
+        legend = '(packets per burst, num of parents)',
+        # legend_position='lower right'
     )
 
     work = gather_sum_data(dataBins, 'appReachesDagroot')
@@ -964,13 +974,13 @@ def plot_chargeConsumed_vs_threshold(dataBins):
 
     plot_vs_threshold(
         plotData=dict(
-            ((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in charge_per_packet.items() if
-            buf == 100 and pkt in [1, 5, 25]),
+            ((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in charge_per_packet.items() if buf == 100),
         ymin       = 0,
         ymax       = 0.08,
         ylabel     = 'charge consumed/packet received x1e5',
         filename   = 'chargeConsumedPerRecv_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)'
+        legend = '(packets per burst, num of parents)',
+        logy = True
     )
 
 def gather_time_all_reached(dataBins):
@@ -996,26 +1006,14 @@ def plot_time_all_reached_vs_threshold(dataBins):
 
     plotData  = gather_time_all_reached(dataBins)
 
-    ymax = { 1: 75, 5: 100, 25: 100 } 
-#    print plotData
-#    for n in getNumPacketsBurst(plotData):
-#        plot_vs_threshold(
-#            plotData   = dict(((th,per,alg,par,buf),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if pkt == n),
-#            ymin       = 60,
-#            ymax       = ymax[n],
-#            ylabel     = 'time for last packet to reach root',
-#            filename   = 'time_all_root_vs_threshold_pkt_{}'.format(n),
-#        )
-   
-
     plot_vs_threshold(
-        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                      buf == 100 and pkt in [1, 5, 25]),
+        plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if buf == 100),
         ymin       = 60,
         ymax       = 100,
         ylabel     = 'time for last packet to reach root',
         filename   = 'time_all_root_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)'
+        legend = '(packets per burst, num of parents)',
+        legend_position='lower right'
     )
 
 
@@ -1095,7 +1093,7 @@ def plot_numCells_otfActivity_vs_time(dataBins):
     pkPeriods           = sorted(list(set(pkPeriods)))
     otfThresholds       = sorted(list(set(otfThresholds)), reverse=True)
 
-    fig = matplotlib.pyplot.figure(figsize=(8, 4))
+    fig = matplotlib.pyplot.figure(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
 
     #=== otfActivity
 
@@ -1353,7 +1351,7 @@ def plot_otfActivity_vs_time(dataBins,doPlot=True):
 
     #===== plot
 
-    fig = matplotlib.pyplot.figure()
+    fig = matplotlib.pyplot.figure(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
 
     def plotForEachPkPeriod(ax,plotData,pkPeriod_p):
         #ax.set_xlim(xmin=poi,xmax=poi)
@@ -1674,7 +1672,7 @@ def plot_reliability_vs_threshold(dataBins):
 
     # ymin = {1: 0.94, 5: 0.80, 25: 0.20}
     #for pkt in numPacketsBursts:
-    fig, ax = matplotlib.pyplot.subplots()
+    fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
     # matplotlib.pyplot.ylim(ymin=ymin,ymax=ymax)
     matplotlib.pyplot.ylim(ymin=0.40,ymax=1.015)
 #    matplotlib.pyplot.xlabel('Parameters, (buffer,parents)')
@@ -1700,9 +1698,9 @@ def plot_reliability_vs_threshold(dataBins):
             y     = [d[k]['mean'] for k in x]
             yerr  = [d[k]['confint'] for k in x]
             t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
-            bars += [ax.bar(tics, y, 0.1, color= COLORS_TH[t], edgecolor='black', ecolor=ECOLORS_TH[t], yerr=yerr)]
+            bars += [ax.bar(tics, y, 0.9 / (len(x)), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) if algorithm in ['otf','eotf'] else algorithm ]
-            offset += 0.15
+            offset += 1.3 / (len(x))
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
     ax.set_xticklabels([(b,p) for (b,p) in x])
@@ -1744,6 +1742,7 @@ def main():
 
     dataBins = binDataFiles()
 
+    plot_load_vs_threshold(dataBins)
     plot_load_vs_time(dataBins)
 
     plot_time_all_reached_vs_threshold(dataBins)

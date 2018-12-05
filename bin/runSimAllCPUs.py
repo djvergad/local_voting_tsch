@@ -20,13 +20,13 @@ def runOneSim(params):
     command    = ['python runSimOneCPU.py']
     command    += ['--numRuns {0}'.format(numRuns)]
     command    += ['--cpuID {0}'.format(cpuID)]
-#    command    += ['--numPacketsBurst {0}'.format(5)]
+    command    += ['--numPacketsBurst {0}'.format('50 80')]
 #    command    += ['--parents {0}'.format(3)]
     command    += ['--burstTimestamp {0}'.format(20)]
     command    += ['--pkPeriod {0}'.format(16)]
     command    += ['--buffer {0}'.format(100)]
-#     command    += ['--algorithm {0}'.format('otf')] # otf,local_voting
-    # command    += ['--otfThreshold {0}'.format(0)]
+    command    += ['--algorithm {0}'.format('eotf otf')] # eotf otf local_voting local_voting_z
+    command    += ['--otfThreshold {0}'.format('10 4 1 0')]
     command    += ['--scheduler {0}'.format('deBras')] # deBras, none
     # command    += ['--numChans {0}'.format(1)]
     # command    += ['"']
