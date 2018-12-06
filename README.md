@@ -12,15 +12,9 @@ Some indicative results:
 Table of Contents
 =================
 
-1. [Aggregated results](#aggr)
-2. [Scenario parents: 1, packets: 80](#sec_0)
-3. [Scenario parents: 1, packets: 50](#sec_1)
-4. [Scenario parents: 1, packets: 25](#sec_2)
-5. [Scenario parents: 2, packets: 25](#sec_3)
-6. [Scenario parents: 3, packets: 25](#sec_4)
-7. [Scenario parents: 3, packets: 5](#sec_5)
+[TOC]
 
-Aggregated Values vs parameters <a name="aggr"></a>
+Aggregated Values vs parameters 
 ===============================
 
 ### time_all_root
@@ -62,7 +56,7 @@ Aggregated Values vs parameters <a name="aggr"></a>
 Some indicative scenarios
 ===================
 
-Scenario parents: 1, packets: 80 <a name="sec_0"></a>
+Scenario parents: 1, packets: 80
 ------------------------------
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_1_pkt_80.png)
@@ -97,7 +91,7 @@ Scenario parents: 1, packets: 80 <a name="sec_0"></a>
 ### LoadCongJain
 ![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_1_pkt_80.png)
 
-Scenario parents: 1, packets: 50 <a name="sec_1"></a>
+Scenario parents: 1, packets: 50
 ------------------------------
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_1_pkt_80.png)
@@ -132,7 +126,7 @@ Scenario parents: 1, packets: 50 <a name="sec_1"></a>
 ### LoadCongJain
 ![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_1_pkt_80.png)
 
-Scenario parents: 1, packets: 25 <a name="sec_2"></a>
+Scenario parents: 1, packets: 25
 ------------------------------
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_1_pkt_80.png)
@@ -167,7 +161,7 @@ Scenario parents: 1, packets: 25 <a name="sec_2"></a>
 ### LoadCongJain
 ![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_1_pkt_80.png)
 
-Scenario parents: 2, packets: 25 <a name="sec_3"></a>
+Scenario parents: 2, packets: 25
 ------------------------------
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_2_pkt_80.png)
@@ -202,7 +196,7 @@ Scenario parents: 2, packets: 25 <a name="sec_3"></a>
 ### LoadCongJain
 ![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_2_pkt_80.png)
 
-Scenario parents: 3, packets: 25 <a name="sec_4"></a>
+Scenario parents: 3, packets: 25
 ------------------------------
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_80.png)
@@ -237,7 +231,7 @@ Scenario parents: 3, packets: 25 <a name="sec_4"></a>
 ### LoadCongJain
 ![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_80.png)
 
-Scenario parents: 3, packets: 5 <a name="sec_5"></a>
+Scenario parents: 3, packets: 5
 ------------------------------
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_80.png)
