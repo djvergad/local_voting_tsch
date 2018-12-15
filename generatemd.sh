@@ -47,7 +47,7 @@ do
     for metric in appGenerated_cum appReachesDagroot_cum appReachesDagroot chargeConsumed latency numRxCells txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain
     do
         printf '### %s\n' "$metric" 
-        printf '![%s](bin/simData/%s_vs_time_buf_%d_par_%d_pkt_%d.png)\n' "$metric" "$metric" "${buf[$i]}" "${par[$i]}" "$pkt"
+        printf '![%s](bin/simData/%s_vs_time_buf_%d_par_%d_pkt_%d.png)\n' "$metric" "$metric" "${buf[$i]}" "${par[$i]}" "${pkt[$i]}"
         printf "\n"
     done
 done

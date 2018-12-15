@@ -94,107 +94,107 @@ Scenario parents: 3, packets: 80
 Scenario parents: 3, packets: 50
 ------------------------------
 ### appGenerated_cum
-![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_80.png)
+![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_50.png)
 
 ### appReachesDagroot_cum
-![appReachesDagroot_cum](bin/simData/appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_80.png)
+![appReachesDagroot_cum](bin/simData/appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_50.png)
 
 ### appReachesDagroot
-![appReachesDagroot](bin/simData/appReachesDagroot_vs_time_buf_100_par_3_pkt_80.png)
+![appReachesDagroot](bin/simData/appReachesDagroot_vs_time_buf_100_par_3_pkt_50.png)
 
 ### chargeConsumed
-![chargeConsumed](bin/simData/chargeConsumed_vs_time_buf_100_par_3_pkt_80.png)
+![chargeConsumed](bin/simData/chargeConsumed_vs_time_buf_100_par_3_pkt_50.png)
 
 ### latency
-![latency](bin/simData/latency_vs_time_buf_100_par_3_pkt_80.png)
+![latency](bin/simData/latency_vs_time_buf_100_par_3_pkt_50.png)
 
 ### numRxCells
-![numRxCells](bin/simData/numRxCells_vs_time_buf_100_par_3_pkt_80.png)
+![numRxCells](bin/simData/numRxCells_vs_time_buf_100_par_3_pkt_50.png)
 
 ### txQueueFill
-![txQueueFill](bin/simData/txQueueFill_vs_time_buf_100_par_3_pkt_80.png)
+![txQueueFill](bin/simData/txQueueFill_vs_time_buf_100_par_3_pkt_50.png)
 
 ### LoadAllG
-![LoadAllG](bin/simData/LoadAllG_vs_time_buf_100_par_3_pkt_80.png)
+![LoadAllG](bin/simData/LoadAllG_vs_time_buf_100_par_3_pkt_50.png)
 
 ### LoadAllJain
-![LoadAllJain](bin/simData/LoadAllJain_vs_time_buf_100_par_3_pkt_80.png)
+![LoadAllJain](bin/simData/LoadAllJain_vs_time_buf_100_par_3_pkt_50.png)
 
 ### LoadCongG
-![LoadCongG](bin/simData/LoadCongG_vs_time_buf_100_par_3_pkt_80.png)
+![LoadCongG](bin/simData/LoadCongG_vs_time_buf_100_par_3_pkt_50.png)
 
 ### LoadCongJain
-![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_80.png)
+![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_50.png)
 
 Scenario parents: 3, packets: 25
 ------------------------------
 ### appGenerated_cum
-![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_80.png)
+![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_25.png)
 
 ### appReachesDagroot_cum
-![appReachesDagroot_cum](bin/simData/appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_80.png)
+![appReachesDagroot_cum](bin/simData/appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_25.png)
 
 ### appReachesDagroot
-![appReachesDagroot](bin/simData/appReachesDagroot_vs_time_buf_100_par_3_pkt_80.png)
+![appReachesDagroot](bin/simData/appReachesDagroot_vs_time_buf_100_par_3_pkt_25.png)
 
 ### chargeConsumed
-![chargeConsumed](bin/simData/chargeConsumed_vs_time_buf_100_par_3_pkt_80.png)
+![chargeConsumed](bin/simData/chargeConsumed_vs_time_buf_100_par_3_pkt_25.png)
 
 ### latency
-![latency](bin/simData/latency_vs_time_buf_100_par_3_pkt_80.png)
+![latency](bin/simData/latency_vs_time_buf_100_par_3_pkt_25.png)
 
 ### numRxCells
-![numRxCells](bin/simData/numRxCells_vs_time_buf_100_par_3_pkt_80.png)
+![numRxCells](bin/simData/numRxCells_vs_time_buf_100_par_3_pkt_25.png)
 
 ### txQueueFill
-![txQueueFill](bin/simData/txQueueFill_vs_time_buf_100_par_3_pkt_80.png)
+![txQueueFill](bin/simData/txQueueFill_vs_time_buf_100_par_3_pkt_25.png)
 
 ### LoadAllG
-![LoadAllG](bin/simData/LoadAllG_vs_time_buf_100_par_3_pkt_80.png)
+![LoadAllG](bin/simData/LoadAllG_vs_time_buf_100_par_3_pkt_25.png)
 
 ### LoadAllJain
-![LoadAllJain](bin/simData/LoadAllJain_vs_time_buf_100_par_3_pkt_80.png)
+![LoadAllJain](bin/simData/LoadAllJain_vs_time_buf_100_par_3_pkt_25.png)
 
 ### LoadCongG
-![LoadCongG](bin/simData/LoadCongG_vs_time_buf_100_par_3_pkt_80.png)
+![LoadCongG](bin/simData/LoadCongG_vs_time_buf_100_par_3_pkt_25.png)
 
 ### LoadCongJain
-![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_80.png)
+![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_25.png)
 
 Scenario parents: 3, packets: 5
 ------------------------------
 ### appGenerated_cum
-![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_80.png)
+![appGenerated_cum](bin/simData/appGenerated_cum_vs_time_buf_100_par_3_pkt_5.png)
 
 ### appReachesDagroot_cum
-![appReachesDagroot_cum](bin/simData/appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_80.png)
+![appReachesDagroot_cum](bin/simData/appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_5.png)
 
 ### appReachesDagroot
-![appReachesDagroot](bin/simData/appReachesDagroot_vs_time_buf_100_par_3_pkt_80.png)
+![appReachesDagroot](bin/simData/appReachesDagroot_vs_time_buf_100_par_3_pkt_5.png)
 
 ### chargeConsumed
-![chargeConsumed](bin/simData/chargeConsumed_vs_time_buf_100_par_3_pkt_80.png)
+![chargeConsumed](bin/simData/chargeConsumed_vs_time_buf_100_par_3_pkt_5.png)
 
 ### latency
-![latency](bin/simData/latency_vs_time_buf_100_par_3_pkt_80.png)
+![latency](bin/simData/latency_vs_time_buf_100_par_3_pkt_5.png)
 
 ### numRxCells
-![numRxCells](bin/simData/numRxCells_vs_time_buf_100_par_3_pkt_80.png)
+![numRxCells](bin/simData/numRxCells_vs_time_buf_100_par_3_pkt_5.png)
 
 ### txQueueFill
-![txQueueFill](bin/simData/txQueueFill_vs_time_buf_100_par_3_pkt_80.png)
+![txQueueFill](bin/simData/txQueueFill_vs_time_buf_100_par_3_pkt_5.png)
 
 ### LoadAllG
-![LoadAllG](bin/simData/LoadAllG_vs_time_buf_100_par_3_pkt_80.png)
+![LoadAllG](bin/simData/LoadAllG_vs_time_buf_100_par_3_pkt_5.png)
 
 ### LoadAllJain
-![LoadAllJain](bin/simData/LoadAllJain_vs_time_buf_100_par_3_pkt_80.png)
+![LoadAllJain](bin/simData/LoadAllJain_vs_time_buf_100_par_3_pkt_5.png)
 
 ### LoadCongG
-![LoadCongG](bin/simData/LoadCongG_vs_time_buf_100_par_3_pkt_80.png)
+![LoadCongG](bin/simData/LoadCongG_vs_time_buf_100_par_3_pkt_5.png)
 
 ### LoadCongJain
-![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_80.png)
+![LoadCongJain](bin/simData/LoadCongJain_vs_time_buf_100_par_3_pkt_5.png)
 
 
 Code Organization
