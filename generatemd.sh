@@ -1,24 +1,31 @@
 #!/bin/bash
 
-buf=(100 100 100 100 100 100)
-par=(1 1 1 2 3 3)
-pkt=(80 50 25 25 25 5)
+cat << 'EOF'
+Local Voting TSCH
+=================
 
-printf 'Table of Contents\n'
-printf '=================\n\n'
+Implementation of the Local Voting algorithm in the 6TiSCH Simulator, and some
+simulation results. Comparison of Local Voting with OTF, thresholds 0,1,4,10,
+1,2, and 3 parents, 100 buffer size, and 5 25 50 80 packets per burst.
 
-printf '1. [Aggregated results](#aggr)\n'
+You can find eps and png figures of the results in folder bin/simData/
 
-for i in 0 1 2 3 4 5
-do
-  printf '%d. [Scenario parents: %d, packets: %s](#sec_%d)\n' "$((i + 2))" "${par[i]}" "${pkt[i]}" "$i"
-done
-printf "\n"
+Some indicative results:
 
+Table of Contents
+=================
 
-printf 'Aggregated Values vs parameters <a name="aggr"></a>\n'
-printf '===============================\n'
-printf "\n"
+[TOC]
+
+Aggregated Values vs parameters
+===============================
+
+EOF
+
+buf=(100 100 100 100)
+par=(3   3   3   3)
+pkt=(80  50  25  5)
+
 
 for metric in time_all_root max_latency latency chargeConsumedPerRecv chargeConsumed reliability max_txQueueFill txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain
 do
@@ -32,9 +39,9 @@ printf '===================\n'
 printf "\n"
 
 
-for i in 0 1 2 3 4 5
+for i in 0 1 2 3
 do
-    printf 'Scenario parents: %d, packets: %s <a name="sec_%d"></a>\n' "${par[i]}" "${pkt[i]}" "$i"
+    printf 'Scenario parents: %d, packets: %s\n' "${par[i]}" "${pkt[i]}"
     printf -- '------------------------------\n'
 
     for metric in appGenerated_cum appReachesDagroot_cum appReachesDagroot chargeConsumed latency numRxCells txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain
@@ -45,3 +52,23 @@ do
     done
 done
  
+cat << 'EOF'
+
+Code Organization
+-----------------
+
+* `bin/`: the script for you to run
+* `SimEngine/`: the simulator
+    * `Mote.py`: Models a 6TiSCH mote running the different standards listed above.
+    * `Propagation.py`: Wireless propagation model.
+    * `SimEngine.py`: Event-driven simulation engine at the core of this simulator.
+    * `SimSettings.py`: Data store for all simulation settings.
+    * `SimStats.py`: Periodically collects statistics and writes those to a file.
+    * `Topology.py`: creates a topology of the motes in the network.
+* `SimGui/`: the graphical user interface to the simulator
+
+Issues and bugs
+---------------
+
+* Report at https://bitbucket.org/6tsch/simulator/issues
+EOF

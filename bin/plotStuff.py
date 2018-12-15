@@ -350,7 +350,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
     algorithms          = sorted(list(set(algorithms)), reverse=withError)
 
     # fig = matplotlib.pyplot.figure()
-    fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
+    fig, ax = matplotlib.pyplot.subplots(figsize=(8, 6), dpi=400, facecolor='w', edgecolor='k')
 
     def plotForEachPkPeriod(ax,plotData,pkPeriod_p):
         ax.set_xlim(xmin=0,xmax=100)
@@ -508,7 +508,8 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
     #===== plot
 
 #    fig = matplotlib.pyplot.figure()
-    fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
+    fig, ax = matplotlib.pyplot.subplots(figsize=(8, 6), dpi=400, facecolor='w', edgecolor='k')
+    # fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
     # matplotlib.pyplot.ylim(ymin=ymin,ymax=ymax)
     ax.set_xlabel('Parameters: {0}'.format(legend))
     ax.set_ylabel(ylabel)
@@ -534,9 +535,9 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
 
             t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
 
-            bars += [ax.bar(tics, y, 0.9 / (len(x)), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
+            bars += [ax.bar(tics, y, 0.9 / (len(x) + 4), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) ] if algorithm in ['otf','eotf'] else [ algorithm ]
-            offset += 1.3 / (len(x))
+            offset += 1.3 / (len(x) + 4)
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
     ax.set_xticklabels(x)
@@ -1093,7 +1094,7 @@ def plot_numCells_otfActivity_vs_time(dataBins):
     pkPeriods           = sorted(list(set(pkPeriods)))
     otfThresholds       = sorted(list(set(otfThresholds)), reverse=True)
 
-    fig = matplotlib.pyplot.figure(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
+    fig = matplotlib.pyplot.figure(figsize=(8, 6), dpi=400, facecolor='w', edgecolor='k')
 
     #=== otfActivity
 
@@ -1351,7 +1352,7 @@ def plot_otfActivity_vs_time(dataBins,doPlot=True):
 
     #===== plot
 
-    fig = matplotlib.pyplot.figure(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
+    fig = matplotlib.pyplot.figure(figsize=(8, 6), dpi=400, facecolor='w', edgecolor='k')
 
     def plotForEachPkPeriod(ax,plotData,pkPeriod_p):
         #ax.set_xlim(xmin=poi,xmax=poi)
@@ -1672,7 +1673,7 @@ def plot_reliability_vs_threshold(dataBins):
 
     # ymin = {1: 0.94, 5: 0.80, 25: 0.20}
     #for pkt in numPacketsBursts:
-    fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
+    fig, ax = matplotlib.pyplot.subplots(figsize=(8, 6), dpi=400, facecolor='w', edgecolor='k')
     # matplotlib.pyplot.ylim(ymin=ymin,ymax=ymax)
     matplotlib.pyplot.ylim(ymin=0.40,ymax=1.015)
 #    matplotlib.pyplot.xlabel('Parameters, (buffer,parents)')
@@ -1698,9 +1699,9 @@ def plot_reliability_vs_threshold(dataBins):
             y     = [d[k]['mean'] for k in x]
             yerr  = [d[k]['confint'] for k in x]
             t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
-            bars += [ax.bar(tics, y, 0.9 / (len(x)), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
+            bars += [ax.bar(tics, y, 0.9 / (len(x) + 4), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) if algorithm in ['otf','eotf'] else algorithm ]
-            offset += 1.3 / (len(x))
+            offset += 1.3 / (len(x) + 4)
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
     ax.set_xticklabels([(b,p) for (b,p) in x])
