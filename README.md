@@ -17,7 +17,6 @@ Table of Contents
 Aggregated Values vs parameters
 ===============================
 
-
 ### time_all_root
 ![time_all_root](bin/simData/time_all_root_vs_threshold_buf_100.png)
 
