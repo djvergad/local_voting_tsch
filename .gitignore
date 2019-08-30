@@ -14,3 +14,6 @@ Thumbs.db
 bin/tmp.out
 otp simulator.e4p
 .idea/
+bin/nohup.out
+bin/progress.txt
+*~

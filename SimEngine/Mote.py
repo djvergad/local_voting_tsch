@@ -578,11 +578,11 @@ class Mote(object):
 
     def _lv_get_w(self, parent, src, dst):
         if self in [src,dst] or parent in [src, dst]:
-            return 1 / (1.0 * self.settings.numChans)
+            return 1 # / (1.0 * self.settings.numChans)
         elif dst in self._myNeigbors() or src in parent._myNeigbors():
-            return 1 / (1.0 * self.settings.numChans)
+            return 1 # 1 / (1.0 * self.settings.numChans)
         else:
-            return 0;
+            return 0
 
     def _lv_action_housekeeping(self):
         '''
@@ -592,22 +592,61 @@ class Mote(object):
         with self.dataLock:
 
 
+            p_sum = self.settings.slotframeLength
+
+
+            # collect all neighbors I have RX cells to
+            rxNeighbors = [cell['neighbor'] for ((ts,ch),cell) in self.schedule.items() if cell['dir']==self.DIR_RX]
+
+            # remove duplicates
+            rxNeighbors = list(set(rxNeighbors))
+
+            # reset inTrafficMovingAve
+            neighbors = self.inTrafficMovingAve.keys()
+            for neighbor in neighbors:
+
+                if neighbor not in rxNeighbors:
+                    del self.inTrafficMovingAve[neighbor]
+
+            # set inTrafficMovingAve
+            for neighborOrMe in rxNeighbors+[self]:
+                if neighborOrMe in self.inTrafficMovingAve:
+                    newTraffic   = 0
+                    newTraffic  += self.inTraffic[neighborOrMe]*self.OTF_TRAFFIC_SMOOTHING               # new
+                    newTraffic  += self.inTrafficMovingAve[neighborOrMe]*(1-self.OTF_TRAFFIC_SMOOTHING)  # old
+                    self.inTrafficMovingAve[neighborOrMe] = newTraffic
+                elif self.inTraffic[neighborOrMe] != 0:
+                    self.inTrafficMovingAve[neighborOrMe] = self.inTraffic[neighborOrMe]
+
             # calculate my total generated traffic, in pkt/s
             genTraffic       = 0
-
             # generated/relayed by me
             for neighborOrMe in self.inTraffic:
                 genTraffic  += self.inTraffic[neighborOrMe]/self.otfHousekeepingPeriod
 
             # convert to pkts/cycle
             genTraffic      *= self.settings.slotframeLength*self.settings.slotDuration
-            p_sum = self.settings.slotframeLength
 
-            for dest, portion in self.trafficPortionPerParent.items():
+            # reset the incoming traffic statistics, so they can build up until next housekeeping
+            self._otf_resetInboundTrafficCounters()
+
+            remainingPortion = 0.0
+            parent_portion   = self.trafficPortionPerParent.items()
+            # sort list so that the parent assigned larger traffic can be checked first
+            sorted_parent_portion = sorted(parent_portion, key = lambda x: x[1], reverse=True)
+
+            # split genTraffic across parents, trigger 6top to add/delete cells accordingly
+            for (dest,portion) in sorted_parent_portion:
+                # if some portion is remaining, this is added to this parent
+                if remainingPortion!=0.0:
+                    portion                               += remainingPortion
+                    remainingPortion                       = 0.0
+                    self.trafficPortionPerParent[dest]   = portion
+
                 q_ij = portion * len(self.txQueue) 
 
                 if self.settings.algorithm == 'local_voting_z':
-                     q_ij += genTraffic/ (1.0 * self.settings.numChans)
+                     q_ij += portion * genTraffic
 
                 p_max_ij = math.ceil(portion * genTraffic + q_ij)
                 self.z_last[(self,dest)] = portion * genTraffic
@@ -619,10 +658,10 @@ class Mote(object):
 #                 print "time: %s src: %s dst: %s queue: %s schedule: %s (%s)" % (self.engine.asn, self.id, dest.id, q_ij, p_ij, u_ij)
                                       
                 # Traffic sent by us is counted
-                q_sum = (len(self.txQueue))/ (1.0 * self.settings.numChans)
+                q_sum = (len(self.txQueue)) # / (1.0 * self.settings.numChans)
 
                 if self.settings.algorithm == 'local_voting_z':
-                     q_sum += genTraffic/ (1.0 * self.settings.numChans)
+                     q_sum += genTraffic # Don't include portion since we count all parents together
 
                 counted_links = set([(self, parent) for parent in self.parentSet ])
 
@@ -643,18 +682,18 @@ class Mote(object):
  
                 if q_sum > 0:
 
-                    u_ij = int(max(p_min_ij,min(round(q_ij * p_sum / (1.0 * q_sum)), p_max_ij))) - p_ij
+                    u_ij = int(max(p_min_ij,min(round(q_ij * p_sum / (1.0 * q_sum) * self.settings.numChans), p_max_ij))) - p_ij
 
                     if u_ij > 0:
-#                       print "Trying to add u= ", u_ij, " cells for [",self.id,",",dest.id,"]"
+                        # print "Trying to add u= ", u_ij, " cells for [",self.id,",",dest.id,"]"
                         self._stats_incrementMoteStats('otfAdd')
                         self._sixtop_cell_reservation_request(dest, u_ij)
                     elif u_ij < 0:
-#                       print "Trying to remove u= ", -u_ij, " cells from [",self.id,",",dest.id,"]"
+                        # print "Trying to remove u= ", -u_ij, " cells from [",self.id,",",dest.id,"]"
                         self._stats_incrementMoteStats('otfRemove')
                         self._sixtop_removeCells(dest, -u_ij)
-#                   print "time: %s src: %s dst: %s queue: %s schedule: %s (%s)" % (self.engine.asn, self.id, dest.id, q_ij, p_ij, u_ij)
-#                   print "q_ij= %s, p_sum = %s, q_sum= %s, p_ij= %s, p_sum1= %s" % (q_ij, p_sum, q_sum, p_ij, p_sum1)
+                    # print "time: %s src: %s dst: %s queue: %s schedule: %s (%s)" % (self.engine.asn, self.id, dest.id, q_ij, p_ij, u_ij)
+                    # print "q_ij= %s, p_sum = %s, q_sum= %s, p_ij (prev)= %s, u_ij= %s" % (q_ij, p_sum, q_sum, p_ij, u_ij)
                 elif q_ij == 0 and p_ij > p_min_ij:
                     self._stats_incrementMoteStats('otfRemove')
                     self._sixtop_removeCells(dest, p_ij - p_min_ij)
@@ -670,10 +709,6 @@ class Mote(object):
                     if p_dest > 0:
                         self._stats_incrementMoteStats('otfRemove')
                         self._sixtop_removeCells(dest, p_dest)
-
-            # reset the incoming traffic statistics, so they can build up until next housekeeping
-            # print "reseting, {0} {1}".format(self.id, self.engine.getAsn())
-            self._otf_resetInboundTrafficCounters()
 
             # schedule next housekeeping
             self._otf_schedule_housekeeping()

@@ -112,12 +112,13 @@ def binDataFiles():
                 m = re.search('otfThreshold\s+=\s+([\.0-9]+)',line)
                 if m:
                     otfThreshold = int(m.group(1))
-                # pkPeriod
-                m = re.search('pkPeriod\s+=\s+([\.0-9]+)',line)
-                if m:
-                    pkPeriod     = float(m.group(1))
-                else:
-                    pkPeriod     = 'NA'
+#                # pkPeriod
+#                m = re.search('pkPeriod\s+=\s+([\.0-9]+)',line)
+#                if m:
+#                    pkPeriod     = float(m.group(1))
+#                else:
+#                    pkPeriod     = 'NA'
+
                 # algorithm
                 m = re.search('algorithm\s+=\s+(.+)',line)
                 if m:
@@ -134,6 +135,10 @@ def binDataFiles():
                 m = re.search('numPacketsBurst_([^_]+)',infilepath)
                 if m:
                     numPacketsBurst  = int(m.group(1))
+                # pkPeriod
+                m = re.search('pkPeriod_([^_]+)',infilepath)
+                if m:
+                    pkPeriod = float(m.group(1))
 
             if (otfThreshold,pkPeriod,algorithm,parent_size,buffer_size,numPacketsBurst) not in dataBins:
                 dataBins[(otfThreshold,pkPeriod,algorithm,parent_size,buffer_size,numPacketsBurst)] = []
@@ -147,6 +152,7 @@ def binDataFiles():
     output  = '\n'.join(output)
 
     # print "OUTPUT: %s" % output
+    print "THE BINS ARE {}".format(dataBins.keys())
     return dataBins
 
 def gatherPerRunData(infilepaths,elemName):
@@ -282,6 +288,9 @@ def getBufferSizes(plotData):
 def getNumPacketsBurst(plotData):
     return set([numPacketsBurst for (otfThreshold,pkPeriod,algorithm,parent_size,buffer_size,numPacketsBurst) in plotData.keys() ])
     
+def getPkPeriods(plotData):
+    return set([pkPeriod for (otfThreshold,pkPeriod,algorithm,parent_size,buffer_size,numPacketsBurst) in plotData.keys() ])
+
 
 #============================ plotters ========================================
 
@@ -359,7 +368,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
             ax.text(2,0.9*ymax,'packet period {0}s'.format(pkPeriod_p))
         plots = []
         for th in otfThresholds:
-            for ((otfThreshold,pkPeriod),data) in plotData.items():
+            for ((otfThreshold,pkPeriod,algorithm),data) in plotData.items():
                 if otfThreshold==th and pkPeriod==pkPeriod_p:
                     plots += [
                         ax.errorbar(
@@ -377,7 +386,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
 
 
     allaxes = []
-    if 'NA' not in pkPeriods:
+    if False: #'NA' not in pkPeriods:
         subplotHeight = 0.85/len(pkPeriods)
         for (plotIdx,pkPeriod) in enumerate(pkPeriods):
             ax = fig.add_axes([0.10, 0.10+plotIdx*subplotHeight, 0.85, subplotHeight])
@@ -391,13 +400,14 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
         legends = []
         for alg in [ 'otf', 'eotf', 'local_voting', 'local_voting_z' ]:
             for th in otfThresholds:
+              for pe in pkPeriods:
                 for ((otfThreshold,pkPeriod,algorithm),data) in plotData.items():
-                    if algorithm==alg and otfThreshold == th:
+                    if algorithm==alg and otfThreshold == th and pkPeriod == pe:
 
                         if algorithm in [ 'local_voting', 'local_voting_z'] and otfThreshold != 10:
                             continue
 
-                        t = "{0}_{1}".format(alg,th) if alg in ['otf', 'eotf'] else alg
+                        t = "{0}_{1}".format(alg,th,) if alg in ['otf', 'eotf'] else alg
                         plots += [
                             ax.errorbar(
                                 x        = data['x'],
@@ -408,27 +418,28 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
                                 ecolor   = ECOLORS_TH[t],
                             )
                         ]
-                        legends += ( ['{0}_{1}'.format(alg,th)] if alg in ['otf','eotf'] else [ alg ] )
-		legendPlots = tuple(plots)
+                        legends += ( ['{0}_{1}_{2}'.format(alg,th,pe)] if alg in ['otf','eotf'] else [ '{0}_{1}'.format(alg,pe) ] )
+
+        legendPlots = tuple(plots)
         allaxes += [ax]
 
-    # add x label
+        # add x label
 
-#   for ax in allaxes[1:]:
-#        ax.get_xaxis().set_visible(False)
-    allaxes[0].set_xlabel('time (slotframe cycles)')
+#        for ax in allaxes[1:]:
+#            ax.get_xaxis().set_visible(False)
+        allaxes[0].set_xlabel('time (slotframe cycles)')
 
-    # add y label
-    allaxes[int(len(allaxes)/2)].set_ylabel(ylabel)
+         # add y label
+        allaxes[int(len(allaxes)/2)].set_ylabel(ylabel)
 
-    # add legend
-    legendText = tuple(legends)
+        # add legend
+        legendText = tuple(legends)
 
-    ax.legend( legendPlots, legendText, loc="best", prop={'size':10})
+        ax.legend( legendPlots, legendText, loc="best", prop={'size':10})
 
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.png'.format(filename)))
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.eps'.format(filename)))
-    matplotlib.pyplot.close('all')
+        matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.png'.format(filename)))
+        matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.eps'.format(filename)))
+        matplotlib.pyplot.close('all')
 
 def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents, buffer size)', legend_position='best', logy=False):
 
@@ -505,6 +516,7 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
     buffer_sizes        = sorted(list(set(buffer_sizes)))
     parent_sizes        = sorted(list(set(parent_sizes)))
 
+    print "The periods are {}".format(pkPeriods)
     #===== plot
 
 #    fig = matplotlib.pyplot.figure()
@@ -526,7 +538,7 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
             d = {}
             for ((otfThreshold,pkPeriod,pkAlgorithm,parent_size,buffer_size),data) in plotData.items():
                 if otfThreshold == threshold and pkAlgorithm == algorithm:
-                    d[buffer_size,parent_size] = data
+                    d[buffer_size,parent_size,pkPeriod] = data
 
             x     = sorted(d.keys())
             tics  = [i+.25+offset for i in range(len(x))]
@@ -538,6 +550,10 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
             bars += [ax.bar(tics, y, 0.9 / (len(x) + 4), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) ] if algorithm in ['otf','eotf'] else [ algorithm ]
             offset += 1.3 / (len(x) + 4)
+
+    print "bars: {}, legends: {}".format(bars, legends)
+    if (len(bars) == 0 and len(legends) == 0) or len(bars) != len(legends):
+        return
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
     ax.set_xticklabels(x)
@@ -611,14 +627,15 @@ def plot_txQueueFill_vs_time(dataBins):
     for b in getBufferSizes(plotData):
         for p in getParentSizes(plotData):
             for n in getNumPacketsBurst(plotData):
-                plot_vs_time(
-                    plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n),
-                    ymin     = 0,
-                    ymax     = 50,
-                    ylabel   = 'txQueueFill',
-                    filename = 'txQueueFilllatency_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n),
-                    withError = False,
-                )
+                for pe in getPkPeriods(plotData):
+                    plot_vs_time(
+                        plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n and per == pe),
+                        ymin     = 0,
+                        ymax     = 50,
+                        ylabel   = 'txQueueFill',
+                        filename = 'txQueueFill_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                        withError = False,
+                    )
 
 def plot_appReachesDagroot_vs_time(dataBins):
 
@@ -783,21 +800,24 @@ def plot_latency_vs_time(dataBins):
     for b in getBufferSizes(plotData):
         for p in getParentSizes(plotData):
             for n in getNumPacketsBurst(plotData):
-                plot_vs_time(
-                    plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n),
+                for pe in getPkPeriods(plotData):
+                    plot_vs_time(
+                        plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n and per == pe),
                     ymin     = 0,
                     ymax     = 18,
                     ylabel   = 'end-to-end latency (s)',
-                    filename = 'latency_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n),
+                    filename = 'latency_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
                     withError = False,
                 )
 
 def plot_latency_vs_threshold(dataBins):
+    print "plotata1 {}".format(dataBins.keys())
     plotData  = gather_ave_data(dataBins, 'aveLatency', 'appReachesDagroot')
 
 # ymax = { 1: 2.5, 5: 15, 25: 40 }
 
 
+    print "plotata {}".format(plotData.keys())
     plot_vs_threshold(
         plotData=dict(((th, per, alg, par, pkt), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
                       buf == 100 ),
@@ -1743,9 +1763,6 @@ def main():
 
     dataBins = binDataFiles()
 
-    plot_load_vs_threshold(dataBins)
-    plot_load_vs_time(dataBins)
-
     plot_time_all_reached_vs_threshold(dataBins)
     plot_max_latency_vs_threshold(dataBins)
     plot_latency_vs_threshold(dataBins)
@@ -1761,6 +1778,9 @@ def main():
     plot_reliability_vs_time(dataBins)
     plot_txQueueFill_vs_threshold(dataBins)
     plot_max_txQueueFill_vs_threshold(dataBins)
+
+#    plot_load_vs_threshold(dataBins)
+#    plot_load_vs_time(dataBins)
 
 if __name__=="__main__":
     main()
