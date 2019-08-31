@@ -22,6 +22,7 @@ import matplotlib.pyplot
 #============================ defines =========================================
 
 DATADIR       = '.'
+PREFIX        = os.path.basename(os.getcwd()).split('_',1)[-1]
 CONFINT       = 0.95
 
 COLORS_TH     = {
@@ -407,7 +408,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
                         if algorithm in [ 'local_voting', 'local_voting_z'] and otfThreshold != 10:
                             continue
 
-                        t = "{0}_{1}".format(alg,th,) if alg in ['otf', 'eotf'] else alg
+                        t = "{0}_{1}".format(alg,th) if alg in ['otf', 'eotf'] else alg
                         plots += [
                             ax.errorbar(
                                 x        = data['x'],
@@ -418,7 +419,7 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
                                 ecolor   = ECOLORS_TH[t],
                             )
                         ]
-                        legends += ( ['{0}_{1}_{2}'.format(alg,th,pe)] if alg in ['otf','eotf'] else [ '{0}_{1}'.format(alg,pe) ] )
+                        legends += ( ['{0}_{1}'.format(alg,th)] if alg in ['otf','eotf'] else [ '{0}'.format(alg) ] )
 
         legendPlots = tuple(plots)
         allaxes += [ax]
@@ -437,11 +438,11 @@ def plot_vs_time(plotData,ymin=None,ymax=None,ylabel=None,filename=None,doPlot=T
 
         ax.legend( legendPlots, legendText, loc="best", prop={'size':10})
 
-        matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.png'.format(filename)))
-        matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.eps'.format(filename)))
+        matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_{1}.png'.format(PREFIX, filename)))
+        matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_{1}.eps'.format(PREFIX, filename)))
         matplotlib.pyplot.close('all')
 
-def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents, buffer size)', legend_position='best', logy=False):
+def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend_position='best',logy=False):
 
     prettyp   = False
 
@@ -523,7 +524,7 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
     fig, ax = matplotlib.pyplot.subplots(figsize=(8, 6), dpi=400, facecolor='w', edgecolor='k')
     # fig, ax = matplotlib.pyplot.subplots(figsize=(12, 9), dpi=400, facecolor='w', edgecolor='k')
     # matplotlib.pyplot.ylim(ymin=ymin,ymax=ymax)
-    ax.set_xlabel('Parameters: {0}'.format(legend))
+    ax.set_xlabel('Parameters: ' +('(packets per burst, num of parents)' if len(pkPeriods) == 1 else '(num of parents, pkPeriod)'))
     ax.set_ylabel(ylabel)
     bars = []
     legends = []
@@ -549,14 +550,14 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
 
             bars += [ax.bar(tics, y, 0.9 / (len(x) + 4), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) ] if algorithm in ['otf','eotf'] else [ algorithm ]
-            offset += 1.3 / (len(x) + 4)
+            offset += 1.3 / (len(x) + 6)
 
     print "bars: {}, legends: {}".format(bars, legends)
     if (len(bars) == 0 and len(legends) == 0) or len(bars) != len(legends):
         return
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
-    ax.set_xticklabels(x)
+    ax.set_xticklabels([(b,p) if len(pkPeriods) == 1 else (p,pe) for (b,p,pe) in x])
     ax.legend( bars, legends, loc=legend_position, prop={'size':10})
 
     if logy:
@@ -573,8 +574,9 @@ def plot_vs_threshold(plotData,ymin,ymax,ylabel,filename,legend='(num of parents
 #                label    = '{}, thr={}'.format(algorithm,threshold)
 #            )
 #    matplotlib.pyplot.legend(prop={'size':10})
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.png'.format(filename)))
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}.eps'.format(filename)))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_{1}.png'.format(PREFIX, filename)))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_{1}.eps'.format(PREFIX, filename)))
+
     matplotlib.pyplot.close('all')
 
 #----- txQueueFill
@@ -666,7 +668,6 @@ def plot_load_vs_threshold(dataBins):
             ymax=130,
             ylabel=label,
             filename='{}_vs_threshold_buf_100'.format(label),
-            legend='(packets per burst, num of parents)',
             legend_position='lower left'
         )
 
@@ -682,16 +683,17 @@ def plot_load_vs_time(dataBins):
         for b in getBufferSizes(plotData):
             for p in getParentSizes(plotData):
                 for n in getNumPacketsBurst(plotData):
-                    plot_vs_time(
-                        plotData=dict(
-                            ((th, per, alg), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
-                            buf == b and par == p and pkt == n),
-                        ymin=0,
-                        ymax=1000,
-                        ylabel=label,
-                        filename='{}_vs_time_buf_{}_par_{}_pkt_{}'.format(label, b, p, n),
-                        withError=False,
-                    )
+                    for pe in getPkPeriods(plotData):
+                        plot_vs_time(
+                            plotData=dict(
+                                ((th, per, alg), data) for (th, per, alg, par, buf, pkt), data in plotData.items() if
+                                buf == b and par == p and pkt == n and per == pe),
+                            ymin=0,
+                            ymax=1000,
+                            ylabel=label,
+                            filename='{}_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(label, b, p, n, pe),
+                            withError=False,
+                        )
 
 
 def plot_numRxCells_vs_time(dataBins):
@@ -701,14 +703,15 @@ def plot_numRxCells_vs_time(dataBins):
     for b in getBufferSizes(plotData):
         for p in getParentSizes(plotData):
             for n in getNumPacketsBurst(plotData):
-                plot_vs_time(
-                    plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n),
-                    ymin     = 0,
-                    ymax     = 1000,
-                    ylabel   = 'numRxCells',
-                    filename = 'numRxCells_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n),
-                    withError = False,
-                )
+                for pe in getPkPeriods(plotData):
+                    plot_vs_time(
+                        plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n and per == pe),
+                        ymin     = 0,
+                        ymax     = 1000,
+                        ylabel   = 'numRxCells',
+                        filename = 'numRxCells_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                        withError = False,
+                    )
 
 def plot_chargeConsumed_vs_time(dataBins):
 
@@ -717,14 +720,15 @@ def plot_chargeConsumed_vs_time(dataBins):
     for b in getBufferSizes(plotData):
         for p in getParentSizes(plotData):
             for n in getNumPacketsBurst(plotData):
-                plot_vs_time(
-                    plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n),
-                    ymin     = 0,
-                    ymax     = 7,
-                    ylabel   = 'chargeConsumed x1e5',
-                    filename = 'chargeConsumed_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n),
-                    withError = False,
-                )
+                for pe in getPkPeriods(plotData):
+                    plot_vs_time(
+                        plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n and per == pe),
+                        ymin     = 0,
+                        ymax     = 7,
+                        ylabel   = 'chargeConsumed x1e5',
+                        filename = 'chargeConsumed_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                        withError = False,
+                    )
 
 
 
@@ -824,8 +828,7 @@ def plot_latency_vs_threshold(dataBins):
         ymin=0,
         ymax=130,
         ylabel='average end-to-end latency (s)',
-        filename='latency_vs_threshold_buf_100',
-        legend='(packets per burst, num of parents)'
+        filename='latency_vs_threshold_buf_100'
     )
 
 def plot_txQueueFill_vs_threshold(dataBins):
@@ -837,8 +840,7 @@ def plot_txQueueFill_vs_threshold(dataBins):
         ymin=0,
         ymax=40,
         ylabel='average queue size (packets)',
-        filename='txQueueFill_vs_threshold_buf_100',
-        legend='(packets per burst, num of parents)'
+        filename='txQueueFill_vs_threshold_buf_100'
     )
 
 def plot_max_txQueueFill_vs_threshold(dataBins):
@@ -849,8 +851,7 @@ def plot_max_txQueueFill_vs_threshold(dataBins):
         ymin=0,
         ymax=40,
         ylabel='max avg queue size (packets)',
-        filename='max_txQueueFill_vs_threshold_buf_100',
-        legend='(packets per burst, num of parents)'
+        filename='max_txQueueFill_vs_threshold_buf_100'
     )
 
 def plot_ave_q_delay_vs_threshold(dataBins):
@@ -862,8 +863,7 @@ def plot_ave_q_delay_vs_threshold(dataBins):
         ymin       = 0,
         ymax       = 100,
         ylabel     = 'average queue delay (s)',
-        filename   = 'queue_delay_vs_threshold_buf_100',
-        legend='(packets per burst, num of parents)'
+        filename   = 'queue_delay_vs_threshold_buf_100'
     )
 
 def gather_max_data(dataBins, label):
@@ -949,8 +949,7 @@ def plot_max_latency_vs_threshold(dataBins):
         ymin       = 0,
         ymax       = 100,
         ylabel     = 'max end-to-end latency (s)',
-        filename   = 'max_latency_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)'
+        filename   = 'max_latency_vs_threshold_buf_100'
     )
 
 
@@ -964,8 +963,7 @@ def plot_max_queue_delay_vs_threshold(dataBins):
         ymin       = 0,
         ymax       = 100,
         ylabel     = 'max queue delay (s)',
-        filename   = 'max_queue_delay_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)'
+        filename   = 'max_queue_delay_vs_threshold_buf_100'
     )
 
 def plot_chargeConsumed_vs_threshold(dataBins):
@@ -978,7 +976,6 @@ def plot_chargeConsumed_vs_threshold(dataBins):
         ymax       = 20,
         ylabel     = 'charge consumed x1e5',
         filename   = 'chargeConsumed_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)',
         # legend_position='lower right'
     )
 
@@ -1000,7 +997,6 @@ def plot_chargeConsumed_vs_threshold(dataBins):
         ymax       = 0.08,
         ylabel     = 'charge consumed/packet received x1e5',
         filename   = 'chargeConsumedPerRecv_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)',
         logy = True
     )
 
@@ -1033,7 +1029,6 @@ def plot_time_all_reached_vs_threshold(dataBins):
         ymax       = 100,
         ylabel     = 'time for last packet to reach root',
         filename   = 'time_all_root_vs_threshold_buf_100',
-        legend = '(packets per burst, num of parents)',
         legend_position='lower right'
     )
 
@@ -1241,8 +1236,8 @@ def plot_numCells_otfActivity_vs_time(dataBins):
 
     allaxes += [ax]
 
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'numCells_otfActivity_vs_time.png'))
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'numCells_otfActivity_vs_time.eps'))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_numCells_otfActivity_vs_time.png'.format(PREFIX)))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_numCells_otfActivity_vs_time.eps'.format(PREFIX)))
     matplotlib.pyplot.close('all')
 
 #===== otfActivity
@@ -1421,8 +1416,8 @@ def plot_otfActivity_vs_time(dataBins,doPlot=True):
         prop={'size':8},
     )
 
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'otfActivity_vs_time.png'))
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'otfActivity_vs_time.eps'))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_otfActivity_vs_time.png'.format(PREFIX)))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_otfActivity_vs_time.eps'.format(PREFIX)))
     matplotlib.pyplot.close('all')
 
 def gather_sumOtfActivity_data(dataBins):
@@ -1510,14 +1505,16 @@ def plot_reliability_vs_time(dataBins):
         for b in getBufferSizes(plotData):
             for p in getParentSizes(plotData):
                 for n in getNumPacketsBurst(plotData):
-                    plot_vs_time(
-                        plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n),
-                        ymin     = 0,
-                        ymax     = 50,
-                        ylabel   = val_str,
-                        filename = val_str + '_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n),
-                        withError = False,
-                    )
+                    pes = getPkPeriods(plotData)
+                    for pe in pes:
+                        plot_vs_time(
+                            plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotData.items() if buf == b and par == p and pkt == n and per == pe),
+                            ymin     = 0,
+                            ymax     = 50,
+                            ylabel   = val_str,
+                            filename = val_str + '_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n) + ('_per_{}'.format(pe) if len(pes) > 1 else ''),
+                            withError = False,
+                        )
 
         plotDataCum = {}
         for ((otfThreshold,pkPeriod,algorith,parent_size,buffer_sizem,numPacketsBurst),filepaths) in dataBins.items():
@@ -1531,14 +1528,16 @@ def plot_reliability_vs_time(dataBins):
         for b in getBufferSizes(plotData):
             for p in getParentSizes(plotData):
                 for n in getNumPacketsBurst(plotData):
-                    plot_vs_time(
-                        plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotDataCum.items() if buf == b and par == p and pkt == n),
-                        ymin     = 0,
-                        ymax     = (10000 if val_str == 'txQueueFill' else 2505 ),
-                        ylabel   = val_str + '_cum',
-                        filename = val_str + '_cum_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n),
-                        withError = False,
-                    )
+                    pes = getPkPeriods(plotData)
+                    for pe in pes:
+                        plot_vs_time(
+                            plotData = dict(((th,per,alg),data) for (th,per,alg,par,buf,pkt),data in plotDataCum.items() if buf == b and par == p and pkt == n and per == pe),
+                            ymin     = 0,
+                            ymax     = (10000 if val_str == 'txQueueFill' else 2505 ),
+                            ylabel   = val_str + '_cum',
+                            filename = val_str + '_cum_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n) + ('_per_{}'.format(pe) if len(pes) > 1 else ''),
+                            withError = False,
+                        )
 
 def plot_reliability_vs_threshold(dataBins):
 
@@ -1698,7 +1697,7 @@ def plot_reliability_vs_threshold(dataBins):
     matplotlib.pyplot.ylim(ymin=0.40,ymax=1.015)
 #    matplotlib.pyplot.xlabel('Parameters, (buffer,parents)')
     ax.set_ylabel('end-to-end reliability')
-    ax.set_xlabel('Parameters: (packets per burst, num of parents)')
+    ax.set_xlabel('Parameters: (packets per burst, num of parents)' if len(pkPeriods) == 1 else '(num of parents, pkPeriod)')
     bars = []
     legends = []
     offset = 0
@@ -1712,7 +1711,7 @@ def plot_reliability_vs_threshold(dataBins):
             d = {}
             for ((otfThreshold,pkPeriod,pkAlgorithm,parent_size,buffer_size,numPacketsBurst),data) in reliabilityData.items():
                 if otfThreshold == threshold and pkAlgorithm == algorithm and buffer_size == 100:
-                    d[numPacketsBurst,parent_size] = data
+                    d[numPacketsBurst,parent_size,pkPeriod] = data
 
             x     = sorted(d.keys())
             tics  = [i+.25+offset for i in range(len(x))]
@@ -1721,10 +1720,10 @@ def plot_reliability_vs_threshold(dataBins):
             t     = "{0}_{1}".format(algorithm,threshold) if algorithm in ['otf', 'eotf'] else algorithm
             bars += [ax.bar(tics, y, 0.9 / (len(x) + 4), color= COLORS_TH[t], edgecolor=COLORS_TH[t], ecolor='black', yerr=yerr)]
             legends += [ '{}, thr={}'.format(algorithm,threshold) if algorithm in ['otf','eotf'] else algorithm ]
-            offset += 1.3 / (len(x) + 4)
+            offset += 1.3 / (len(x) + 6)
 
     ax.set_xticks( [i+.25+offset/2 for i in range(len(x))])
-    ax.set_xticklabels([(b,p) for (b,p) in x])
+    ax.set_xticklabels([(b,p) if len(pkPeriods) == 1 else (p,pe) for (b,pe,p) in x])
     ax.legend( bars, legends, loc="lower left", prop={'size':10})
 
 ##===== plot
@@ -1753,8 +1752,8 @@ def plot_reliability_vs_threshold(dataBins):
 #           label    = 'packet period {0}s'.format(period)
 #       )
 #    matplotlib.pyplot.legend(prop={'size':10})
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'reliability_vs_threshold_buf_100.png'))
-    matplotlib.pyplot.savefig(os.path.join(DATADIR,'reliability_vs_threshold_buf_100.eps'))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_reliability_vs_threshold_buf_100.png'.format(PREFIX)))
+    matplotlib.pyplot.savefig(os.path.join(DATADIR,'{0}_reliability_vs_threshold_buf_100.eps'.format(PREFIX)))
     matplotlib.pyplot.close('all')
 
 #============================ main ============================================
@@ -1779,8 +1778,8 @@ def main():
     plot_txQueueFill_vs_threshold(dataBins)
     plot_max_txQueueFill_vs_threshold(dataBins)
 
-#    plot_load_vs_threshold(dataBins)
-#    plot_load_vs_time(dataBins)
+    plot_load_vs_threshold(dataBins)
+    plot_load_vs_time(dataBins)
 
 if __name__=="__main__":
     main()

@@ -594,30 +594,6 @@ class Mote(object):
 
             p_sum = self.settings.slotframeLength
 
-
-            # collect all neighbors I have RX cells to
-            rxNeighbors = [cell['neighbor'] for ((ts,ch),cell) in self.schedule.items() if cell['dir']==self.DIR_RX]
-
-            # remove duplicates
-            rxNeighbors = list(set(rxNeighbors))
-
-            # reset inTrafficMovingAve
-            neighbors = self.inTrafficMovingAve.keys()
-            for neighbor in neighbors:
-
-                if neighbor not in rxNeighbors:
-                    del self.inTrafficMovingAve[neighbor]
-
-            # set inTrafficMovingAve
-            for neighborOrMe in rxNeighbors+[self]:
-                if neighborOrMe in self.inTrafficMovingAve:
-                    newTraffic   = 0
-                    newTraffic  += self.inTraffic[neighborOrMe]*self.OTF_TRAFFIC_SMOOTHING               # new
-                    newTraffic  += self.inTrafficMovingAve[neighborOrMe]*(1-self.OTF_TRAFFIC_SMOOTHING)  # old
-                    self.inTrafficMovingAve[neighborOrMe] = newTraffic
-                elif self.inTraffic[neighborOrMe] != 0:
-                    self.inTrafficMovingAve[neighborOrMe] = self.inTraffic[neighborOrMe]
-
             # calculate my total generated traffic, in pkt/s
             genTraffic       = 0
             # generated/relayed by me
