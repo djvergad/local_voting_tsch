@@ -635,7 +635,7 @@ def plot_txQueueFill_vs_time(dataBins):
                         ymin     = 0,
                         ymax     = 50,
                         ylabel   = 'txQueueFill',
-                        filename = 'txQueueFill_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                        filename = 'txQueueFill_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n) + ( '_per_{}'.format(pe) if len(getPkPeriods(plotData)) > 1 else '' ),
                         withError = False,
                     )
 
@@ -691,7 +691,7 @@ def plot_load_vs_time(dataBins):
                             ymin=0,
                             ymax=1000,
                             ylabel=label,
-                            filename='{}_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(label, b, p, n, pe),
+                            filename='{}_vs_time_buf_{}_par_{}_pkt_{}'.format(label,b,p,n) + ('_per_{}'.format(pe) if len(getPkPeriods(plotData)) > 1 else ''),
                             withError=False,
                         )
 
@@ -709,7 +709,7 @@ def plot_numRxCells_vs_time(dataBins):
                         ymin     = 0,
                         ymax     = 1000,
                         ylabel   = 'numRxCells',
-                        filename = 'numRxCells_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                        filename = 'numRxCells_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n) + ('_per_{}'.format(pe) if len(getPkPeriods(plotData)) > 1 else ''),
                         withError = False,
                     )
 
@@ -726,7 +726,7 @@ def plot_chargeConsumed_vs_time(dataBins):
                         ymin     = 0,
                         ymax     = 7,
                         ylabel   = 'chargeConsumed x1e5',
-                        filename = 'chargeConsumed_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                        filename = 'chargeConsumed_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n) + ('_per_{}'.format(pe) if len(getPkPeriods(plotData)) > 1 else ''),
                         withError = False,
                     )
 
@@ -810,7 +810,7 @@ def plot_latency_vs_time(dataBins):
                     ymin     = 0,
                     ymax     = 18,
                     ylabel   = 'end-to-end latency (s)',
-                    filename = 'latency_vs_time_buf_{}_par_{}_pkt_{}_per_{}'.format(b,p,n,pe),
+                    filename = 'latency_vs_time_buf_{}_par_{}_pkt_{}'.format(b,p,n) + ('_per_{}'.format(pe) if len(getPkPeriods(plotData)) > 1 else ''),
                     withError = False,
                 )
 
