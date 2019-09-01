@@ -63,7 +63,7 @@ Some indicative results:
 
 ## Some indicative scenarios
 
-## Scenario parents: 0.1, average inter-packet period: 
+## Scenario parents: 3, average inter-packet period: 0.1
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData_steady/steady_appGenerated_cum_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
@@ -97,7 +97,7 @@ Some indicative results:
 ### LoadCongJain
 ![LoadCongJain](bin/simData_steady/steady_LoadCongJain_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
-## Scenario parents: 0.2, average inter-packet period: 
+## Scenario parents: 3, average inter-packet period: 0.2
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData_steady/steady_appGenerated_cum_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
@@ -131,7 +131,7 @@ Some indicative results:
 ### LoadCongJain
 ![LoadCongJain](bin/simData_steady/steady_LoadCongJain_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
-## Scenario parents: 0.4, average inter-packet period: 
+## Scenario parents: 3, average inter-packet period: 0.4
 ### appGenerated_cum
 ![appGenerated_cum](bin/simData_steady/steady_appGenerated_cum_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 

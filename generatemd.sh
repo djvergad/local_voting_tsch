@@ -54,7 +54,7 @@ printf "\n"
 
 for i in 0 1 2
 do
-    printf '## Scenario parents: %s, average inter-packet period: %s\n' "${rates[i]}"
+    printf '## Scenario parents: %s, average inter-packet period: %s\n' "${par[i]}" "${rates[i]}"
 
     for metric in "${line_metrics[@]}"
     do
