@@ -64,26 +64,29 @@ Some indicative results:
 ## Some indicative scenarios
 
 ## Scenario parents: 3, average inter-packet period: 0.1
-### appGenerated_cum
-![appGenerated_cum](bin/simData_steady/steady_appGenerated_cum_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
-
-### appReachesDagroot_cum
-![appReachesDagroot_cum](bin/simData_steady/steady_appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
+### appGenerated
+![appGenerated](bin/simData_steady/steady_appGenerated_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
 ### appReachesDagroot
 ![appReachesDagroot](bin/simData_steady/steady_appReachesDagroot_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
-### chargeConsumed
-![chargeConsumed](bin/simData_steady/steady_chargeConsumed_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
+### appReachesDagroot_cum
+![appReachesDagroot_cum](bin/simData_steady/steady_appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
 ### latency
 ![latency](bin/simData_steady/steady_latency_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
+### txQueueFill
+![txQueueFill](bin/simData_steady/steady_txQueueFill_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
+
+### txQueueFill_cum
+![txQueueFill_cum](bin/simData_steady/steady_txQueueFill_cum_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
+
 ### numRxCells
 ![numRxCells](bin/simData_steady/steady_numRxCells_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
-### txQueueFill
-![txQueueFill](bin/simData_steady/steady_txQueueFill_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
+### chargeConsumed
+![chargeConsumed](bin/simData_steady/steady_chargeConsumed_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
 ### LoadAllG
 ![LoadAllG](bin/simData_steady/steady_LoadAllG_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
@@ -98,26 +101,29 @@ Some indicative results:
 ![LoadCongJain](bin/simData_steady/steady_LoadCongJain_vs_time_buf_100_par_3_pkt_1_per_0.1.png)
 
 ## Scenario parents: 3, average inter-packet period: 0.2
-### appGenerated_cum
-![appGenerated_cum](bin/simData_steady/steady_appGenerated_cum_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
-
-### appReachesDagroot_cum
-![appReachesDagroot_cum](bin/simData_steady/steady_appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
+### appGenerated
+![appGenerated](bin/simData_steady/steady_appGenerated_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
 ### appReachesDagroot
 ![appReachesDagroot](bin/simData_steady/steady_appReachesDagroot_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
-### chargeConsumed
-![chargeConsumed](bin/simData_steady/steady_chargeConsumed_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
+### appReachesDagroot_cum
+![appReachesDagroot_cum](bin/simData_steady/steady_appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
 ### latency
 ![latency](bin/simData_steady/steady_latency_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
+### txQueueFill
+![txQueueFill](bin/simData_steady/steady_txQueueFill_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
+
+### txQueueFill_cum
+![txQueueFill_cum](bin/simData_steady/steady_txQueueFill_cum_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
+
 ### numRxCells
 ![numRxCells](bin/simData_steady/steady_numRxCells_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
-### txQueueFill
-![txQueueFill](bin/simData_steady/steady_txQueueFill_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
+### chargeConsumed
+![chargeConsumed](bin/simData_steady/steady_chargeConsumed_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
 ### LoadAllG
 ![LoadAllG](bin/simData_steady/steady_LoadAllG_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
@@ -132,26 +138,29 @@ Some indicative results:
 ![LoadCongJain](bin/simData_steady/steady_LoadCongJain_vs_time_buf_100_par_3_pkt_1_per_0.2.png)
 
 ## Scenario parents: 3, average inter-packet period: 0.4
-### appGenerated_cum
-![appGenerated_cum](bin/simData_steady/steady_appGenerated_cum_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
-
-### appReachesDagroot_cum
-![appReachesDagroot_cum](bin/simData_steady/steady_appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
+### appGenerated
+![appGenerated](bin/simData_steady/steady_appGenerated_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 
 ### appReachesDagroot
 ![appReachesDagroot](bin/simData_steady/steady_appReachesDagroot_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 
-### chargeConsumed
-![chargeConsumed](bin/simData_steady/steady_chargeConsumed_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
+### appReachesDagroot_cum
+![appReachesDagroot_cum](bin/simData_steady/steady_appReachesDagroot_cum_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 
 ### latency
 ![latency](bin/simData_steady/steady_latency_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 
+### txQueueFill
+![txQueueFill](bin/simData_steady/steady_txQueueFill_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
+
+### txQueueFill_cum
+![txQueueFill_cum](bin/simData_steady/steady_txQueueFill_cum_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
+
 ### numRxCells
 ![numRxCells](bin/simData_steady/steady_numRxCells_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 
-### txQueueFill
-![txQueueFill](bin/simData_steady/steady_txQueueFill_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
+### chargeConsumed
+![chargeConsumed](bin/simData_steady/steady_chargeConsumed_vs_time_buf_100_par_3_pkt_1_per_0.4.png)
 
 ### LoadAllG
 ![LoadAllG](bin/simData_steady/steady_LoadAllG_vs_time_buf_100_par_3_pkt_1_per_0.4.png)

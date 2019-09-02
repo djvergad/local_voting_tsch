@@ -35,7 +35,7 @@ pkt=(80  50  25  5)
 rates=(0.1 0.2 0.4)
 
 bar_metrics=(time_all_root max_latency latency chargeConsumedPerRecv chargeConsumed reliability max_txQueueFill txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain)
-line_metrics=(appGenerated_cum appReachesDagroot_cum appReachesDagroot chargeConsumed latency numRxCells txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain)
+line_metrics=(appGenerated appReachesDagroot appReachesDagroot_cum latency txQueueFill txQueueFill_cum numRxCells chargeConsumed LoadAllG LoadAllJain LoadCongG LoadCongJain)
 
 printf '# Uniform Traffic\n'
 
@@ -63,6 +63,9 @@ do
         printf "\n"
     done
 done
+
+bar_metrics=(time_all_root max_latency latency chargeConsumedPerRecv chargeConsumed reliability max_txQueueFill txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain)
+line_metrics=(appGenerated_cum appReachesDagroot_cum appReachesDagroot chargeConsumed latency numRxCells txQueueFill LoadAllG LoadAllJain LoadCongG LoadCongJain)
 
 printf '# Bursty Traffic\n'
 
