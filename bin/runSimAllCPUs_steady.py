@@ -1,4 +1,4 @@
-#!/home/dimitriv/local/bin/python
+#!/usr/bin/env python
 '''
 \brief Start batch of simulations concurrently.
 Workload is distributed equally among CPU cores.
@@ -11,16 +11,31 @@ import math
 import multiprocessing
 import fileinput
 
-MIN_TOTAL_RUNRUNS = 500 # 94 # 500
+MIN_TOTAL_RUNRUNS = 20 # 500 # 94 # 500
+algos = [('local_voting_z',10), ('local_voting',10), ('eotf', 10), ('otf', 10), ('eotf',4), ('otf',4)]
+
 
 def runOneSim(params):
-    (cpuID,numRuns,host) = params
-    command     = ['ssh {0} "cd $PWD;'.format(host)]
-    command    += ['$HOME/local/bin/python runSimOneCPU.py']
+    (cpuID,numRuns) = params
+    command     = []
+    # command     = ['ssh {0} "cd $PWD;'.format(host)]
+    command    = ['python runSimOneCPU.py']
     command    += ['--numRuns {0}'.format(numRuns)]
     command    += ['--cpuID {0}'.format(cpuID)]
+#     command    += ['--numPacketsBurst {0}'.format(0)]
+#    command    += ['--parents {0}'.format(3)]
+ #   command    += ['--burstTimestamp {0}'.format(None)]
+    command    += ['--pkPeriod {0}'.format('0.1 0.2 0.4')]
+    command    += ['--buffer {0}'.format(100)]
+
+    algo = algos[cpuID % len(algos)]
+    command    += ['--algorithm {0}'.format(algo[0])] # eotf otf local_voting local_voting_z
+    command    += ['--otfThreshold {0}'.format(algo[1])]
+#    command    += ['--parents {0}'.format(1)]
+    command    += ['--scheduler {0}'.format('deBras')] # deBras, none
+    command    += ['--simDataDir {0}'.format('simData_steady')] # deBras, none
     # command    += ['--numChans {0}'.format(1)]
-    command    += ['"']
+    # command    += ['"']
     #command    += ['&']
     command     = ' '.join(command)
     print "Executing command '{0}'".format(command)
@@ -62,11 +77,12 @@ def buildSshParams():
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-    ssh_params = buildSshParams()
-    print "The ssh params are {0}".format(ssh_params)
-    num_cpus = len(ssh_params) # multiprocessing.cpu_count()
-    runsPerCpu = int(math.ceil(float(MIN_TOTAL_RUNRUNS)/float(num_cpus)))
+    # ssh_params = buildSshParams()
+    # print "The ssh params are {0}".format(ssh_params)
+    # num_cpus = len(ssh_params) # multiprocessing.cpu_count()
+    num_cpus = max(min(multiprocessing.cpu_count(), len(algos)* MIN_TOTAL_RUNRUNS), len(algos))
+    runsPerCpu =  int(math.ceil(float(MIN_TOTAL_RUNRUNS)/float(num_cpus)*float(len(algos))))
     pool = multiprocessing.Pool(num_cpus)
-    pool.map_async(runOneSim,[(i,runsPerCpu,ssh_params[i]) for i in range(num_cpus)])
+    pool.map_async(runOneSim,[(i,runsPerCpu) for i in range(num_cpus)])
     printProgress(num_cpus)
     raw_input("Done. Press Enter to close.")

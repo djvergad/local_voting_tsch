@@ -65,7 +65,7 @@ def parseCliOptions():
     parser.add_argument( '--numRuns',
         dest       = 'numRuns',
         type       = int,
-        default    = 2,
+        default    = 1,
         help       = '[sim] Number of simulation runs.',
     )
     parser.add_argument( '--numCyclesPerRun',
@@ -99,7 +99,7 @@ def parseCliOptions():
         dest       = 'pkPeriod',
         nargs      = '+',
         type       = float,
-        default    = [16, 8, 4, 2, 1, 0.5],
+        default    = [0.1],
         help       = '[app] Average period between two data packets (s).',
     )
     parser.add_argument( '--pkPeriodVar',
@@ -120,7 +120,8 @@ def parseCliOptions():
         dest       = 'numPacketsBurst',
         nargs      = '+',
         type       = int,
-        default    = [1, 5, 25],
+        # default    = [1, 5, 25],
+        default    = [1],
         help       = '[app] Number of packets in a burst, per node.',
     )
     # rpl
@@ -135,7 +136,8 @@ def parseCliOptions():
         dest       = 'otfThreshold',
         nargs      = '+',
         type       = int,
-        default    = [4,10],
+#        default    = [4,10],
+        default    = [10],
         # default    = [1], # was [0],
         help       = '[otf] OTF threshold (cells).',
     )
@@ -209,21 +211,24 @@ def parseCliOptions():
         dest       = 'algorithm',
         nargs      = '+',
         type       = str,
-        default    = ['otf', 'local_voting', 'local_voting_z', 'eotf'],
+#        default    = ['otf', 'local_voting', 'local_voting_z', 'eotf'],
+        default    = ['local_voting_z'],
         help       = 'Select the load balancing algorithm, "otf" or "local_voting"',
     )
     parser.add_argument('--buffer',
         dest       = 'buffer',
         nargs      = '+',
         type       = str,
-        default    = [10, 100],
+#        default    = [10, 100],
+        default    = [100],
         help       = 'Select the buffer space per node in packets, 10 or 100',
     )
     parser.add_argument('--parents',
         dest       = 'parents',
         nargs      = '+',
         type       = str,
-        default    = [1, 2, 3],
+#        default    = [1, 2, 3],
+        default    = [3],
         help       = 'Select the number of parents for the rpl protocol, 1, 2, or 3',
     )
 
@@ -289,6 +294,9 @@ def runSims(options):
         for (k,v) in options.items():
             if k not in simParam:
                 simParam[k] = v
+        if (simParam['otfThreshold'] != 10) and (simParam['algorithm'] in ['local_voting', 'local_voting_z']):
+           print "SKIPPING {0}, {1}".format(simParam['otfThreshold'], simParam['algorithm'])
+           continue
         simParams      += [simParam]
     
     print simParams
