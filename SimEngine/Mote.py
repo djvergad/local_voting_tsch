@@ -57,7 +57,12 @@ class Mote(object):
     INFO                               = 'INFO'
     WARNING                            = 'WARNING'
     ERROR                              = 'ERROR'
-    
+
+    LV_MESSAGE_FREQ_ALL = 'All'
+    LV_MESSAGE_FREQ_SHARED = 'Shared'
+    LV_MESSAGE_FREQ_NONE = 'None'
+    LV_MESSAGE_FREQS = [LV_MESSAGE_FREQ_ALL, LV_MESSAGE_FREQ_SHARED, LV_MESSAGE_FREQ_NONE]
+
     #=== app
     APP_TYPE_DATA                      = 'DATA'
     APP_TYPE_MYTRAFFIC                 = 'TRAFFICOMIO'
@@ -95,7 +100,6 @@ class Mote(object):
     CHARGE_TxData_uC                   = 49.37
     CHARGE_RxDataTxAck_uC              = 76.90
     CHARGE_RxData_uC                   = 64.65
-    
     def __init__(self,id):
         
         self.x=0
@@ -583,6 +587,25 @@ class Mote(object):
             return 1 # 1 / (1.0 * self.settings.numChans)
         else:
             return 0
+
+    def _lv_data_to_send(self):
+        return {
+            'trafficPortionPerParent': copy.copy(self.trafficPortionPerParent),
+            'txQueueLen': len(self.txQueue),
+            'z_last': copy.copy(self.z_last),
+            'q': copy.copy(self.q),
+            'z': copy.copy(self.z),
+        }
+
+    def _lv_data_parse(self, smac, lv_data):
+        for dest, portion in lv_data['trafficPortionPerParent'].items():
+            self.q[(smac, dest)] = portion * lv_data['txQueueLen']
+            if (smac, dest) in lv_data['z_last']:
+                self.z[(smac, dest)] = lv_data['z_last'][(smac, dest)]
+            else:
+                self.z[(smac, dest)] = 0
+        self.q2.update(lv_data['q'])
+        self.z2.update(lv_data['z'])
 
     def _lv_action_housekeeping(self):
         '''
@@ -1699,7 +1722,7 @@ class Mote(object):
                                     schedulingPacket = {
                                                 'asn':            self.engine.getAsn(),
                                                 'type':           self.SIXP_TYPE_MYSCHEDULE,
-                                                'payload':        [self.id,self.engine.getAsn(),self.schedule], # the payload is used for latency and number of hops calculation
+                                                'payload':        [self.id,self.engine.getAsn(),self.schedule, self._lv_data_to_send()], # the payload is used for latency and number of hops calculation
                                                 'retriesLeft':    self.TSCH_MAXTXRETRIES
                                                 }
 
@@ -1927,16 +1950,8 @@ class Mote(object):
         with self.dataLock:
            
             # For local voting LV
-            if smac:
-                for dest, portion in smac.trafficPortionPerParent.items():
-                    self.q[(smac, dest)] = portion * len(smac.txQueue)
-                    if (smac,dest) in smac.z_last:
-                        self.z[(smac, dest)] = smac.z_last[(smac,dest)]
-                    else:
-                        self.z[(smac,dest)] = 0
-                self.q2.update(smac.q)
-                self.z2.update(smac.z)
-
+            if smac and self.settings.lvMessageFreq == Mote.LV_MESSAGE_FREQ_ALL:
+                self._lv_data_parse(smac, smac._lv_data_to_send())
 
             if type=='SIXP_TYPE_MYSCHEDULE':
 
@@ -1959,6 +1974,9 @@ class Mote(object):
                         scheduleOfNeigbor=payload[2]
 
                         self._updateSchedule(scheduleOfNeigbor,smac)
+
+                        if self.settings.lvMessageFreq == Mote.LV_MESSAGE_FREQ_SHARED:
+                            self._lv_data_parse(smac, payload[3])
                         
                         self.engine.bcstReceived+=1                        
                         

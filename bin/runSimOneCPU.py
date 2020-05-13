@@ -36,10 +36,12 @@ import itertools
 import logging.config
 import argparse
 import threading
+import random
 
 from SimEngine     import SimEngine,   \
                           SimSettings, \
-                          SimStats
+                          SimStats, \
+                          Mote
 # from SimGui        import SimGui # nogui
 
 #============================ defines =========================================
@@ -215,6 +217,17 @@ def parseCliOptions():
         default    = ['local_voting_z'],
         help       = 'Select the load balancing algorithm, "otf" or "local_voting"',
     )
+
+    parser.add_argument('--lvMessageFreq',
+        dest='lvMessageFreq',
+        nargs='+',
+        type=str,
+        #        default    = ['otf', 'local_voting', 'local_voting_z', 'eotf'],
+        default=[Mote.Mote.LV_MESSAGE_FREQ_ALL],
+        choices=Mote.Mote.LV_MESSAGE_FREQS,
+        help='Select the message frequency for local voting updtes, allowed values are: {0}'.format(Mote.Mote.LV_MESSAGE_FREQS),
+    )
+
     parser.add_argument('--buffer',
         dest       = 'buffer',
         nargs      = '+',
@@ -267,8 +280,18 @@ def parseCliOptions():
         default    = False,
         help       = '[debug] add individual summarys per node for Throughput.',
     )
-    
+    parser.add_argument('--seed',
+        dest       = 'seed',
+        type       = int,
+        default    = None,
+        help       = '[debug] The random seed.',
+    )
+
     options        = parser.parse_args()
+
+    if options.seed > 0:
+        print options
+        random.seed(options.seed)
     
     return options.__dict__
 
