@@ -30,6 +30,7 @@ def runOneSim(params):
 
     algo = algos[cpuID % len(algos)]
     command    += ['--algorithm {0}'.format(algo[0])] # eotf otf local_voting local_voting_z
+    command    += ['--seed {0}'.format(2048)]
 #     command    += ['--otfThreshold {0}'.format(algo[1])]
     command    += ['--lvMessageFreq={0}'.format(algo[1])]
 #    command    += ['--parents {0}'.format(1)]
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     # ssh_params = buildSshParams()
     # print "The ssh params are {0}".format(ssh_params)
     # num_cpus = len(ssh_params) # multiprocessing.cpu_count()
-    num_cpus = max(min(multiprocessing.cpu_count(), len(algos)* MIN_TOTAL_RUNRUNS), len(algos))
+    num_cpus = len(algos)
     runsPerCpu =  int(math.ceil(float(MIN_TOTAL_RUNRUNS)/float(num_cpus)*float(len(algos))))
     pool = multiprocessing.Pool(num_cpus)
     pool.map_async(runOneSim,[(i,runsPerCpu) for i in range(num_cpus)])
