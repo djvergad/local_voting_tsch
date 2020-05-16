@@ -323,6 +323,10 @@ def runSims(options):
         simParams      += [simParam]
     
     print simParams
+
+    seeds = [ random.randint(1, 10000) for i in range(sum([ k['numRuns'] for n, k in enumerate(simParams) ])) ]
+    next_seed = 0;
+
     # run a simulation for each set of simParams
     for (simParamNum,simParam) in enumerate(simParams):
         
@@ -342,6 +346,9 @@ def runSims(options):
 
             printOrLog(simParam,output)
             
+            random.seed(seeds[next_seed])
+            next_seed += 1
+
             # create singletons
             settings         = SimSettings.SimSettings(**simParam)
             settings.setStartTime(runStartTime)

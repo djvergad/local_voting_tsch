@@ -88,7 +88,7 @@ class Mote(object):
     #=== 6top
     #=== tsch
     # TSCH_QUEUE_SIZE                    = 10 #   REMOVED, see self.settings.buffer
-    TSCH_MAXTXRETRIES                  = 25    # was 5
+    TSCH_MAXTXRETRIES                  = 100    # was 5
     #=== radio
     RADIO_MAXDRIFT                     = 30 # in ppm
     #=== battery
@@ -681,7 +681,12 @@ class Mote(object):
  
                 if q_sum > 0:
 
-                    u_ij = int(max(p_min_ij,min(round(q_ij * p_sum / (1.0 * q_sum) * self.settings.numChans), p_max_ij))) - p_ij
+                    etx = self._estimateETX(dest)
+                    if etx>self.RPL_MAX_ETX: # cap ETX
+                        etx  = self.RPL_MAX_ETX
+
+
+                    u_ij = int(max(p_min_ij,min(round(q_ij * p_sum / (1.0 * q_sum) * self.settings.numChans * etx), p_max_ij))) - p_ij
 
                     if u_ij > 0:
                         # print "Trying to add u= ", u_ij, " cells for [",self.id,",",dest.id,"]"

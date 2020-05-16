@@ -22,15 +22,15 @@ def runOneSim(params):
     command    = ['python2 runSimOneCPU.py']
     command    += ['--numRuns {0}'.format(numRuns)]
     command    += ['--cpuID {0}'.format(cpuID)]
-#     command    += ['--numPacketsBurst {0}'.format(0)]
+#    command    += ['--numPacketsBurst {0}'.format(80)]
 #    command    += ['--parents {0}'.format(3)]
- #   command    += ['--burstTimestamp {0}'.format(None)]
+#    command    += ['--burstTimestamp {0}'.format(20.0)]
     command    += ['--pkPeriod {0}'.format('0.1')]# 0.1 0.2 0.4')]
     command    += ['--buffer {0}'.format(100)]
 
     algo = algos[cpuID % len(algos)]
     command    += ['--algorithm {0}'.format(algo[0])] # eotf otf local_voting local_voting_z
-    command    += ['--seed {0}'.format(2048)]
+    command    += ['--seed {0}'.format(1024)]
 #     command    += ['--otfThreshold {0}'.format(algo[1])]
     command    += ['--lvMessageFreq={0}'.format(algo[1])]
 #    command    += ['--parents {0}'.format(1)]

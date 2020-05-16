@@ -115,8 +115,8 @@ class SimStats(object):
                     'cycle':               cycle,
                 }.items() +
                 self._collectSumMoteStats().items()  +
-                self._collectScheduleStats().items() +
-                self._collectBalancingStats().items()
+                self._collectScheduleStats().items() # +
+                # self._collectBalancingStats().items()
             )
         )
         
@@ -149,7 +149,7 @@ class SimStats(object):
         returnVal = {}
         
         for mote in self.engine.motes:
-            moteStats        = mote.getMoteStats(False)
+            moteStats        = mote.getMoteStats()
             if not returnVal:
                 returnVal    = moteStats
             else:
